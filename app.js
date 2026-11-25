@@ -96,7 +96,7 @@
       localStorage.removeItem(KEY);
       localStorage.removeItem(KEY_EVENTS);
       localStorage.removeItem(KEY_DECODER);
-      localStorage.removeItem('binari.relics.v1'); // 유품 획득 기록 (랭킹 기록과 소리 설정은 지우지 않음)
+      localStorage.removeItem('binari.relics.v1'); // 유실물 획득 기록 (랭킹 기록과 소리 설정은 지우지 않음)
     } catch (e) {}
   }
 
@@ -174,7 +174,7 @@
   //  home  : 같은 id로 다시 옴, 또는 id 없이 다시 옴 → 부팅 없이 홈
   var mode;
   if (params.has('relic')) {
-    // 유품 키링 주소. INVENTORY는 다음 단계에서 붙임 — 지금은 부팅 없이 홈으로만.
+    // 유실물 키링 주소. INVENTORY는 다음 단계에서 붙임 — 지금은 부팅 없이 홈으로만.
     mode = 'home';
   } else if (!saved) {
     mode = 'boot';

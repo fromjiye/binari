@@ -781,7 +781,7 @@
       }).then(function () { if (!api._freeze) secret.hidden = true; });
     }
 
-    // 처음 한 판을 끝내면 유품 "보내지 못한 음성 메시지" 획득 (인벤토리는 다음 단계에서 연결)
+    // 처음 한 판을 끝내면 유실물 "보내지 못한 음성 메시지" 획득 (인벤토리는 다음 단계에서 연결)
     try {
       var relics = JSON.parse(localStorage.getItem('binari.relics.v1')) || {};
       if (!relics.voice) { relics.voice = Date.now(); localStorage.setItem('binari.relics.v1', JSON.stringify(relics)); }
