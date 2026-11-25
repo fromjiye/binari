@@ -164,24 +164,24 @@
   var saved = load();
   var savedId = saved && Object.prototype.hasOwnProperty.call(ROSTER, saved.id) ? saved.id : null;
 
-  // 어떤 화면으로 시작할지
+  // 이름 · 번호는 항상 지금 주소 기준.
+  //  ?id 가 없거나 목록에 없는 번호면 언제나 "관리자" (전에 열었던 이름을 이어 쓰지 않는다)
+  var activeId = incoming;
+
+  // 어떤 화면으로 시작할지 (기억해 둔 id는 이 판단에만 쓴다)
   //  boot  : 이 폰의 첫 접속 → 부팅 연출 전체
-  //  greet : 처음 보는 id (다른 id, 또는 id 없이 왔다가 id가 생김) → 짧은 인사 후 그 id를 기억
-  //  home  : 같은 id로 다시 옴, 또는 id 없이 다시 옴 → 부팅 없이 홈 (기억한 이름 유지)
-  var mode, activeId;
+  //  greet : 지난번과 다른 id (또는 id 없이 왔다가 id가 생김) → 짧은 인사 후 그 id를 기억
+  //  home  : 같은 id로 다시 옴, 또는 id 없이 다시 옴 → 부팅 없이 홈
+  var mode;
   if (params.has('relic')) {
-    // 유품 키링 주소. INVENTORY는 2단계에서 붙임 — 지금은 부팅 없이 홈으로만.
+    // 유품 키링 주소. INVENTORY는 다음 단계에서 붙임 — 지금은 부팅 없이 홈으로만.
     mode = 'home';
-    activeId = incoming || savedId;
   } else if (!saved) {
     mode = 'boot';
-    activeId = incoming;
   } else if (incoming && incoming !== savedId) {
     mode = 'greet';
-    activeId = incoming;
   } else {
     mode = 'home';
-    activeId = savedId;
   }
 
   var who = activeId ? ROSTER[activeId] : null;
