@@ -98,10 +98,29 @@
     return Object.prototype.hasOwnProperty.call(ROSTER, id) ? id : null;
   }
 
-  // ── 인앱 브라우저 안내: 카카오톡 · 인스타그램만. 삼성 인터넷 등은 정상 브라우저 ──
-  function isInApp() {
+  // ── 인앱 브라우저: 카카오톡 · 인스타그램만. 삼성 인터넷 등은 정상 브라우저 ──
+  // 인앱은 저장소가 따로라 인벤토리가 따로 쌓이므로 바깥 브라우저로 보낸다.
+  function inAppKind() {
     var ua = navigator.userAgent || '';
-    return /KAKAOTALK|Instagram/i.test(ua);
+    if (/KAKAOTALK/i.test(ua)) return 'kakao';
+    if (/Instagram/i.test(ua)) return 'insta';
+    return null;
+  }
+  var INAPP_TEXT = {
+    kakao: '카카오톡 안에서 열렸어요. 오른쪽 아래 공유 버튼 → 다른 브라우저로 열기를 눌러 주세요.',
+    insta: '인스타그램 안에서 열렸어요. 오른쪽 위 ⋯ → 외부 브라우저에서 열기를 눌러 주세요.'
+  };
+  var inApp = inAppKind();
+
+  // 카카오톡: 지금 주소(?id= · ?relic= 그대로)를 바깥 브라우저로 자동으로 넘긴다.
+  // 같은 창에서 되풀이되지 않게 한 번만 시도하고, 안 넘어가면 아래 안내 띠가 남는다.
+  if (inApp === 'kakao') {
+    var tried = false;
+    try { tried = sessionStorage.getItem('binari.kakao.out') === '1'; } catch (e) {}
+    if (!tried) {
+      try { sessionStorage.setItem('binari.kakao.out', '1'); } catch (e) {}
+      location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(location.href);
+    }
   }
 
   var params;
@@ -281,8 +300,9 @@
     showBoot(mode);
   }
 
-  if (isInApp()) {
+  if (inApp) {
     var bar = $('inapp');
+    $('inapp-text').textContent = INAPP_TEXT[inApp];
     bar.hidden = false;
     $('inapp-close').addEventListener('click', function () { bar.hidden = true; });
   }
