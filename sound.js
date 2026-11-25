@@ -108,6 +108,15 @@
       noise({ type: 'highpass', f: 5200, q: 0.7, dur: 0.9, g: 0.02 });
     },
     stage: function () { tone({ f: BASE, dur: 0.14, g: 0.04 }); },
+    dread: function () {                                                                      // 대귀 출현: 낮고 부드럽게 (경고음 아님)
+      tone({ f: 148, f2: 111, dur: 0.7, g: 0.07, attack: 0.08 });
+      tone({ f: 222, dur: 0.6, g: 0.03, attack: 0.1, at: 0.05 });
+    },
+    bossHit: function () { tone({ f: 330, type: 'triangle', dur: 0.05, g: 0.045 }); noise({ type: 'lowpass', f: 600, dur: 0.05, g: 0.04 }); },
+    bossDown: function () {                                                                   // 대귀 정화
+      [0.5, 1, 3 / 2, 2, 5 / 2, 3].forEach(function (r, i) { tone({ f: BASE * r, dur: 0.5, g: 0.04, at: i * 0.06 }); });
+    },
+    secret: function () { tone({ f: BASE * 3, dur: 0.9, g: 0.012, attack: 0.3 }); },          // 숨은 메시지: 거의 들리지 않게
     result: function () { [1, 3 / 2, 2].forEach(function (r, i) { tone({ f: BASE * r, dur: 0.3, g: 0.045, at: i * 0.09 }); }); }
   };
 

@@ -1282,6 +1282,65 @@ body[data-scan] .ring::before { animation: spin 18s linear infinite; }
 .rs-actions { display: grid; grid-template-columns: 1fr 1.4fr; gap: 6px; margin-top: auto; padding-top: 16px; }
 .rs-btn { min-height: 50px; border: 1px solid rgba(var(--a), 0.6); font-size: 15px; font-weight: 700; }
 
+/* 콤보 이정표 한마디: 점수줄 아래 늘 비워 둔 한 줄 (악귀 · 버튼을 가리지 않음) */
+.nm-cheer { flex: none; display: flex; align-items: center; gap: 8px; height: 28px; opacity: 0; --who: var(--accent); }
+.nm-cheer[data-who="byeori"] { --who: var(--byeori); }
+.nm-cheer[data-who="ara"] { --who: #7c88ff; }
+.nm-cheer img { display: block; width: 26px; height: 26px; object-fit: cover; background: #111617; outline: 1px solid var(--who); }
+.nm-cheer span { padding: 3px 10px 4px; border-left: 3px solid var(--who); background: rgba(15, 20, 21, 0.94); font-size: 14px; line-height: 1.3; white-space: nowrap; }
+.nm-cheer.go { animation: cheer 1.3s ease-out forwards; }
+@keyframes cheer { 0% { opacity: 0; transform: translateX(-8px); } 12% { opacity: 1; transform: none; } 80% { opacity: 1; } 100% { opacity: 0; } }
+
+/* 대귀 출현 경보: 빨강 · 글리치 없이 HUD 톤 */
+.nm-alert {
+  position: absolute;
+  left: 50%;
+  top: 14px;
+  transform: translateX(-50%);
+  padding: 6px 14px 7px;
+  border: 1px solid var(--accent);
+  background: rgba(5, 7, 7, 0.9);
+  box-shadow: -8px 0 0 -6px var(--accent), 8px 0 0 -6px var(--accent);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  white-space: nowrap;
+  color: var(--accent);
+  pointer-events: none;
+}
+.nm-alert.go { animation: alert 1.7s ease-out forwards; }
+@keyframes alert { 0% { opacity: 0; } 10% { opacity: 1; } 22% { opacity: 0.35; } 34% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
+
+/* 숨은 메시지: 시연의 한 줄. 글리치는 시연 · 흑귀에만 */
+.rs-secret {
+  position: absolute;
+  right: 18px;
+  top: 14px;
+  max-width: 62%;
+  text-align: right;
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #a8196c; /* 시연 색 */
+  text-shadow: 0 0 10px rgba(168, 25, 108, 0.9);
+  pointer-events: none;
+  word-break: keep-all;
+}
+.rs-secret.go { animation: siyeon 2.8s steps(1, end) forwards; }
+@keyframes siyeon {
+  0% { opacity: 0; transform: translateX(6px); clip-path: inset(0 0 60% 0); }
+  5% { opacity: 1; transform: translateX(-4px); clip-path: inset(40% 0 0 0); }
+  9% { transform: translateX(3px) skewX(-8deg); clip-path: inset(0 0 0 0); }
+  14% { opacity: 0.4; transform: translateX(-2px); }
+  18% { opacity: 1; transform: none; }
+  52% { transform: translateX(2px); clip-path: inset(0 0 45% 0); }
+  55% { transform: none; clip-path: inset(0 0 0 0); }
+  78% { opacity: 1; transform: translateX(-3px) skewX(6deg); }
+  82% { opacity: 0.5; transform: translateX(4px); clip-path: inset(55% 0 0 0); }
+  90% { opacity: 0.8; transform: none; clip-path: inset(0 0 70% 0); }
+  100% { opacity: 0; }
+}
+
 /* '동작 줄이기'를 켠 폰: 흐르는 줄은 멈춘 줄로, 연출은 결과만 */
 @media (prefers-reduced-motion: reduce) {
   .fx::before,
@@ -1297,6 +1356,8 @@ body[data-scan] .ring::before { animation: spin 18s linear infinite; }
   }
   .typing i, .chat[data-mission] .mission span { animation: none; }
   .nm-root { animation: none; box-shadow: 0 0 0 3px rgba(var(--a), 0.38); }
+  .nm-cheer.go, .nm-alert.go { animation: none; opacity: 1; }
+  .rs-secret.go { animation: none; opacity: 0.9; }
   .rt-card.go > *, .nm-root-fx.go .mandala, .res-judge.pop, .nm-key.hit { animation-duration: 0.01ms; animation-delay: 0s; }
   .chat[data-mission] .mission { animation: none; box-shadow: 0 0 0 3px rgba(var(--a), 0.38); }
   .hack[data-phase="stay"] .hack-bust { display: none; }

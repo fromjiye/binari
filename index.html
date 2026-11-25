@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=6">
+<link rel="stylesheet" href="style.css?v=7">
 </head>
 <body data-role="admin">
 
@@ -221,8 +221,10 @@
         <p class="nm-stat nm-combo"><span>COMBO</span><b id="nm-combo-n">0</b><i id="nm-mult">x1.0</i></p>
       </div>
       <div class="nm-syncrow"><span>SYNC</span><div class="nm-sync-bar"><i id="nm-sync-fill"></i></div><b id="nm-sync">0%</b></div>
-      <div class="nm-field">
+      <p class="nm-cheer" id="nm-cheer" aria-live="polite"><img id="nm-cheer-face" alt="" width="26" height="26"><span id="nm-cheer-text"></span></p>
+      <div class="nm-field" id="nm-field">
         <canvas id="nm-canvas"></canvas>
+        <p class="nm-alert" id="nm-alert" hidden></p>
         <p class="nm-pop" id="nm-pop" aria-live="polite"></p>
         <div class="nm-root-fx" id="nm-root-fx" hidden aria-hidden="true">
           <span class="mandala m1"></span><span class="mandala m2"></span><span class="mandala m3"></span><span class="mandala m4"></span>
@@ -236,6 +238,7 @@
 
     <!-- 결과 · 랭킹 -->
     <div class="rt-view rt-result" id="rt-result" hidden>
+      <p class="rs-secret" id="rs-secret" hidden aria-hidden="true"></p>
       <p class="rs-head">RESULT <span>결과</span></p>
       <p class="rs-score"><b id="rs-score">0</b></p>
       <dl class="rs-stats">
@@ -264,8 +267,8 @@
 <noscript><p class="noscript">MAGO OS 관리자 콘솔 — 접속 준비 중입니다.</p></noscript>
 <script src="config.js?v=1"></script>
 <script src="app.js?v=7"></script>
-<script src="sound.js?v=1"></script>
+<script src="sound.js?v=2"></script>
 <script src="decoder.js?v=4"></script>
-<script src="ritual.js?v=2"></script>
+<script src="ritual.js?v=3"></script>
 </body>
 </html>

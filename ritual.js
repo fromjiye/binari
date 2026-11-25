@@ -36,7 +36,15 @@
     unclass: '분류 불가',
     rootName: '만다라 프로토콜',
     localNote: '지금은 이 폰에 저장된 기록만 보여요',
-    byeori: 'BYEORI ★ 기록'
+    byeori: 'BYEORI ★ 기록',
+    dread: '대귀 출현 · DREAD',
+    // 콤보 이정표 한마디 (at = 콤보 수)
+    cheers: [
+      { at: 10, who: 'byeori', text: '오 좀 하는데? ★' },
+      { at: 20, who: 'ara', text: '좋아요, 그 흐름이에요.' }
+    ],
+    // 흑귀를 모두 흘려보낸 판에서만 결과 화면 구석에 잠깐 뜨는 시연의 한 줄 (안내 없이 숨겨 둠)
+    secret: '…지우지 않고 보내 주셨네요. 고마워요.'
   };
 
   // ── 숫자 (난이도를 고치려면 여기) ──
@@ -50,8 +58,12 @@
     sync: 7,              // 정답 한 번에 오르는 싱크로율 (%)
     rootBase: 1500, rootEach: 300, // ROOT ACCESS: 기본 + 정화한 악귀 하나당
     blackBonus: 800,      // 흑귀를 건드리지 않고 흘려보냈을 때
-    blackAt: [[8500, 11000], [19000, 22500]], // 흑귀가 나오는 시간대
-    blackLife: 2600
+    blackAt: [[6500, 9000], [14500, 17000]], // 흑귀가 나오는 시간대 (대귀가 나오기 전에 둘 다 끝남)
+    blackLife: 2600,
+    // 대귀: 마지막 10초에 가운데 하나. 버튼이 아니라 대귀 자체를 연타
+    bossLast: 10000,  // 남은 시간이 이만큼일 때 등장 (ms)
+    bossTaps: 12,     // 정화까지 필요한 탭 수
+    bossScore: 3000   // 정화했을 때 점수
   };
   // 콤보 5마다 배율 +0.5, 최대 x3
   function multOf(combo) { return Math.min(3, 1 + Math.floor(combo / 5) * 0.5); }
@@ -383,6 +395,11 @@
     });
     $('nm-root').addEventListener('pointerdown', function (ev) { ev.preventDefault(); rootAccess(); });
     $('nm-root-name').textContent = TEXT.rootName;
+    // 대귀는 화면에서 직접 탭
+    $('nm-field').addEventListener('pointerdown', function (ev) {
+      var r = $('nm-canvas').getBoundingClientRect();
+      if (hitBoss(ev.clientX - r.left, ev.clientY - r.top)) ev.preventDefault();
+    });
   }
 
   function rnd(seed) { // 악귀마다 같은 모양이 유지되도록 하는 난수
@@ -442,16 +459,111 @@
       nm.sync = Math.min(100, nm.sync + NORM.sync);
       pop('+' + gain, 'is-good');
       sfx('hit', nm.combo);
+      cheer(nm.combo);
     } else if (black) { // 흑귀: 맞는 버튼이 없다. 점수 변화 없음
       black.touched = true;
       pop(TEXT.unclass, 'is-dim');
       sfx('unclass');
+    } else if (nm.boss && nm.boss.state === 'alive') { // 대귀는 버튼이 아니라 직접 탭: 버튼은 아무 일도 없음
+      return;
     } else { // 틀림: 콤보만 끊김
       nm.combo = 0;
       pop('MISS', 'is-dim');
       sfx('wrong');
     }
     hud();
+  }
+
+  // 콤보 이정표 한마디: 점수줄 아래 빈 줄에 1초 남짓
+  var cheerTimer = 0;
+  function cheer(combo) {
+    var c = null;
+    TEXT.cheers.forEach(function (x) { if (x.at === combo) c = x; });
+    if (!c) return;
+    var box = $('nm-cheer');
+    $('nm-cheer-face').src = 'assets/decoder/' + c.who + '-face.webp';
+    $('nm-cheer-text').textContent = c.text;
+    box.setAttribute('data-who', c.who);
+    box.classList.remove('go'); void box.offsetWidth; box.classList.add('go');
+    clearTimeout(cheerTimer);
+    cheerTimer = setTimeout(function () { if (!api._freeze) box.classList.remove('go'); }, 1300);
+  }
+
+  // ── 대귀 ──
+  var BOSS_N = 15, BOSS_S = 13, BOSS_RING = ['#3F6BFF', '#E0392E', '#F0B90B', '#F2F2EC']; // 속(청) → 겉(백)
+  function makeBoss(now, f) {
+    var r = rnd(Math.floor(Math.random() * 1e6) + 11), cells = [], mid = (BOSS_N - 1) / 2;
+    for (var y = 0; y < BOSS_N; y++) for (var x = 0; x < BOSS_N; x++) {
+      var d = Math.hypot(x - mid, y - mid);
+      if (d < 5.6 || (d < 7.4 && r() > 0.3)) cells.push({ x: x, y: y, d: d, s: r() });
+    }
+    cells.sort(function (a, b) { return a.d - b.d; }); // 바깥 칸이 뒤에 오도록
+    return { cells: cells, parts: [], hp: NORM.bossTaps, born: now, x: f.w / 2, y: f.h * 0.44, state: 'alive', end: 0, hit: 0 };
+  }
+  function bossRadius() { return BOSS_N * BOSS_S / 2 + 16; }
+  function hitBoss(px, py) {
+    var b = nm && nm.boss;
+    if (!b || b.state !== 'alive' || nm.over) return false;
+    if (Math.hypot(px - b.x, py - b.y) > bossRadius()) return false;
+    var now = performance.now();
+    b.hp -= 1; b.hit = now;
+    // 탭할 때마다 바깥 픽셀 한 겹이 떨어져 나감
+    var peel = b.hp <= 0 ? b.cells.length : Math.ceil(b.cells.length / (b.hp + 1));
+    for (var i = 0; i < peel && b.cells.length; i++) {
+      var c = b.cells.pop(), mid = (BOSS_N - 1) / 2, a = Math.atan2(c.y - mid, c.x - mid) + (c.s - 0.5);
+      b.parts.push({ x: (c.x - mid) * BOSS_S, y: (c.y - mid) * BOSS_S, vx: Math.cos(a) * (90 + c.s * 120), vy: Math.sin(a) * (90 + c.s * 120), t: now, d: c.d });
+    }
+    if (b.hp <= 0) { // 정화
+      b.state = 'pure'; b.end = now;
+      nm.score += NORM.bossScore;
+      pop('+' + NORM.bossScore, 'is-root');
+      sfx('bossDown');
+      hud();
+    } else sfx('bossHit');
+    return true;
+  }
+  function drawBoss(c, b, now) {
+    var age = now - b.born, grow = Math.min(1, age / 450), e = 1 - Math.pow(1 - grow, 3), alpha = 1;
+    if (b.state === 'gone') alpha = Math.max(0, 1 - (now - b.end) / 400);
+    var half = BOSS_N * BOSS_S / 2, mid = (BOSS_N - 1) / 2, tick = Math.floor(now / 110);
+    var shake = Math.max(0, 1 - (now - b.hit) / 140) * 4;
+    c.save();
+    c.translate(b.x + (shake ? (Math.random() - 0.5) * shake * 2 : 0), b.y);
+    c.scale(0.4 + 0.6 * e, 0.4 + 0.6 * e);
+    function colorOf(d) { return BOSS_RING[Math.min(3, Math.floor(d / 1.9))]; }
+    b.cells.forEach(function (cell) {
+      if (((cell.s * 991 + tick) | 0) % 13 === 0) return; // 깨진 픽셀: 몇 칸이 깜빡임
+      c.globalAlpha = alpha * e * (0.6 + cell.s * 0.4);
+      c.fillStyle = colorOf(cell.d);
+      c.fillRect((cell.x - mid) * BOSS_S - BOSS_S / 2, (cell.y - mid) * BOSS_S - BOSS_S / 2, BOSS_S - 1, BOSS_S - 1);
+    });
+    var keep = [];
+    b.parts.forEach(function (p) { // 떨어져 나가는 픽셀
+      var k = (now - p.t) / 520;
+      if (k >= 1 && !api._freeze) return;
+      k = Math.min(k, api._freeze ? 0.45 : 1);
+      c.globalAlpha = alpha * (1 - k);
+      c.fillStyle = colorOf(p.d);
+      c.fillRect(p.x + p.vx * k - BOSS_S / 2, p.y + p.vy * k + 60 * k * k - BOSS_S / 2, BOSS_S - 1, BOSS_S - 1);
+      keep.push(p);
+    });
+    b.parts = keep;
+    if (b.state === 'alive') { // 남은 탭
+      c.globalAlpha = alpha * e;
+      c.fillStyle = 'rgba(232,238,240,0.25)';
+      c.fillRect(-half, half + 14, half * 2, 3);
+      c.fillStyle = '#e8eef0';
+      c.fillRect(-half, half + 14, half * 2 * (b.hp / NORM.bossTaps), 3);
+    }
+    c.restore();
+  }
+  function spawnBoss(now, f) {
+    nm.boss = makeBoss(now, f);
+    var al = $('nm-alert');
+    al.textContent = TEXT.dread;
+    al.hidden = false; al.classList.remove('go'); void al.offsetWidth; al.classList.add('go');
+    setTimeout(function () { if (!api._freeze) al.hidden = true; }, 1700);
+    sfx('dread');
   }
 
   // ROOT ACCESS: 아라의 만다라 프로토콜로 화면의 악귀를 모두 정화
@@ -520,10 +632,13 @@
     $('nm-hint').textContent = TEXT.hintNorm;
     $('nm-root-fx').hidden = true;
     $('nm-pop').className = 'nm-pop';
+    $('nm-alert').hidden = true;
+    $('nm-cheer').classList.remove('go');
     var cv = $('nm-canvas');
     var blackTimes = NORM.blackAt.map(function (r) { return r[0] + Math.random() * (r[1] - r[0]); });
-    nm = { score: 0, combo: 0, maxCombo: 0, roots: 0, sync: run.startSync, ghosts: [], next: 700, hold: 0, start: performance.now(), over: false, field: fitCanvas(cv), blackTimes: blackTimes };
+    nm = { score: 0, combo: 0, maxCombo: 0, roots: 0, sync: run.startSync, ghosts: [], next: 700, hold: 0, start: performance.now(), over: false, field: fitCanvas(cv), blackTimes: blackTimes, boss: null, blackPass: 0 };
     hud();
+    var bossAt = NORM.time - NORM.bossLast;
 
     return new Promise(function (resolve) {
       loop(t, function (now) {
@@ -534,6 +649,8 @@
           nm.over = true;
           c.clearRect(0, 0, f.w, f.h);
           run.score = nm.score; run.maxCombo = nm.maxCombo; run.roots = nm.roots;
+          run.secret = nm.blackPass >= NORM.blackAt.length; // 흑귀를 모두 흘려보냈는지
+          $('nm-alert').hidden = true;
           later(700, t).then(resolve);
           return false;
         }
@@ -549,7 +666,9 @@
             nm.hold = now + NORM.blackLife * 0.75;
           }
         }
-        if (time >= nm.next && now >= nm.hold && !blackSoon && time < NORM.time - 900) {
+        // 마지막 10초: 작은 악귀는 더 나오지 않고 가운데에 대귀 하나
+        if (!nm.boss && time >= bossAt) spawnBoss(now, f);
+        if (time >= nm.next && now >= nm.hold && !blackSoon && time < bossAt - 400) {
           var kinds = ['blue', 'red', 'yellow', 'white'];
           nm.ghosts.push(makeGhost(kinds[Math.floor(Math.random() * 4)], now, NORM.life[0] + (NORM.life[1] - NORM.life[0]) * p, f));
           nm.next = time + NORM.spawn[0] + (NORM.spawn[1] - NORM.spawn[0]) * p;
@@ -561,13 +680,14 @@
           if (g.state === 'alive' && now - g.born >= g.life) { // 사라짐
             g.state = 'gone'; g.end = now;
             if (g.kind === 'black') {
-              if (!g.touched) { nm.score += NORM.blackBonus; pop('+' + NORM.blackBonus, 'is-good'); sfx('pass'); hud(); }
+              if (!g.touched) { nm.blackPass += 1; nm.score += NORM.blackBonus; pop('+' + NORM.blackBonus, 'is-good'); sfx('pass'); hud(); }
             } else { nm.combo = 0; hud(); }
           }
           drawGhost(c, g, now);
           if (g.state === 'alive' || now - g.end < 340) keep.push(g);
         });
         nm.ghosts = keep;
+        if (nm.boss) drawBoss(c, nm.boss, now);
       });
     });
   }
@@ -641,6 +761,18 @@
     var form = $('rs-form'), input = $('rs-name'), done = $('rs-done');
     form.hidden = false; done.hidden = true; input.value = '';
     sfx('result');
+
+    // 흑귀 두 번을 모두 흘려보낸 판에서만: 구석에 시연의 한 줄이 잠깐 떴다 사라짐
+    var secret = $('rs-secret');
+    secret.hidden = true; secret.classList.remove('go');
+    if (run.secret) {
+      later(900, t).then(function () {
+        secret.textContent = TEXT.secret;
+        secret.hidden = false; void secret.offsetWidth; secret.classList.add('go');
+        sfx('secret');
+        return later(2800, t);
+      }).then(function () { if (!api._freeze) secret.hidden = true; });
+    }
 
     // 처음 한 판을 끝내면 유품 "보내지 못한 음성 메시지" 획득 (인벤토리는 다음 단계에서 연결)
     try {
@@ -741,8 +873,36 @@
       if (name === 'root') setTimeout(function () { rootAccess(); }, 60);
       return;
     }
-    if (name === 'result') {
-      run = { perfect: 2, startSync: 25, score: 16480, maxCombo: 14, roots: 2 };
+    if (name === 'boss' || name === 'boss-hit' || name === 'cheer10' || name === 'cheer20') {
+      stepEl.textContent = '03 / 03';
+      view('norm'); buildKeys();
+      $('nm-hint').textContent = TEXT.hintNorm;
+      var cv2 = $('nm-canvas'), f2 = fitCanvas(cv2), now2 = performance.now();
+      var isBoss = name.indexOf('boss') === 0;
+      nm = { score: isBoss ? 9150 : 5200, combo: name === 'cheer20' ? 19 : 9, maxCombo: 19, roots: 1, sync: 44, ghosts: [], next: 1e9, hold: 0, start: now2, over: false, field: f2, blackTimes: [], boss: null, blackPass: 2 };
+      if (isBoss) {
+        spawnBoss(now2 - 900, f2);
+        $('nm-time').style.transform = 'scaleX(' + (name === 'boss' ? 0.32 : 0.2) + ')';
+        if (name === 'boss-hit') { $('nm-alert').hidden = true; for (var q = 0; q < 7; q++) hitBoss(nm.boss.x, nm.boss.y); }
+      } else {
+        var g2 = makeGhost(name === 'cheer20' ? 'blue' : 'red', now2 - 900, 1e9, f2);
+        g2.x = f2.w * 0.5; g2.y = f2.h * 0.4; nm.ghosts.push(g2);
+        var g3 = makeGhost('white', now2 - 900, 1e9, f2);
+        g3.x = f2.w * 0.2; g3.y = f2.h * 0.62; nm.ghosts.push(g3);
+        $('nm-time').style.transform = 'scaleX(0.55)';
+        press(name === 'cheer20' ? 'blue' : 'red');
+      }
+      hud();
+      loop(t, function (n3) {
+        var ff = nm.field = fitCanvas(cv2);
+        ff.c.clearRect(0, 0, ff.w, ff.h);
+        nm.ghosts.forEach(function (g) { drawGhost(ff.c, g, n3); });
+        if (nm.boss) drawBoss(ff.c, nm.boss, n3);
+      });
+      return;
+    }
+    if (name === 'result' || name === 'secret') {
+      run = { perfect: 2, startSync: 25, score: 16480, maxCombo: 14, roots: 2, secret: name === 'secret' };
       result(t); // 예시 기록은 넣지 않는다. 등록된 기록이 없으면 BYEORI ★ 기록 줄만 보임
     }
   };
