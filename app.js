@@ -26,7 +26,35 @@
     '18': { ko: '유대겸', en: 'YOO DAE KYUM', issued: '2026.11.25' }
   };
 
+  // 바코드 — 실물 관리자 카드와 같은 패턴.
+  // 글자 두 개가 한 쌍 = 막대 + 간격, 왼쪽부터. 막대 a=0.18 b=0.30 c=0.45mm, 간격 1=0.18 2=0.30mm,
+  // 전체 폭 30mm · 높이 4.1mm 안에서 그리고 화면에서는 같은 비율로 늘린다.
+  var BARCODE = {
+    '00': 'a2a2c2a2a2b2a1c2c2a1a2c2a2a1a2a2c2c2c2c1b1a1c1b2c2b2c2b2c2a2a2a2b2a2a2b2a1c2c1b1c1a2c2a1a2b2b2a1b1a1a1c2b1a2',
+    '01': 'a2b2a2a2a2c2a2c1b1a1c2b1c2a2c2a1c2b1a2b2b2c1c1c2c1c1a2a2b1b2a1c1b1a2b2c1c2b1a1a1b2c1c2a2a1c1a1b2c1a2b2a1b2b1',
+    '02': 'a2b1a2b2c2a2a2c2a2a1a2a2c2a2a2c2c2a1a2c2a2c2c2a1b1a2a2b2a2c2b2c2c2a2a2a2a2b2a2a2a2a2c2b2a1b2a2a1c1a2c2a1a1c2a1',
+    '03': 'c2a2a2a2c2b2a2a1a2a1a1a2b1c2c1a1b1a2c2b1c2a2b1c1a2b1c2a2a2c2a2a2c2a2c2c2c2a1c1b2b1a2a2a1c1a2c1c2b1a2a2b2a2a2b2',
+    '04': 'a1a2b1a1a1a1a2b2a1b2b2a2b2a2c2a2a2a1a2a1b2c2a2a1a2c2c2a1a1a1c1a2a1c1a1a1a2a1a2c2c2a2c2a2a2c2a2a2a1c2a1a2a2a2b1a2a2a2a1c2',
+    '05': 'b2a1b2b2a2a1a2c2a2c2c2a2a2b2b1b2a2a2c2c2c2b2a2c2b2b2a1c2b2a2a1a2a2c2a2a1a2b2a2b2b1a1c1c2b1a1b1a1b1a2b2a2c1a2a1a2',
+    '06': 'c1c1b1a2b2c2b2a2c2c2a1b2c2a2b2a1c1a1b1a2b2b2b2c2a1a2a1a1b2a1b2a2b2c2c1c1b2c2a1a2b2a2a2c2a2a1a2c1b1b1a2a1b2b1b2',
+    '07': 'a2c2b1c2a2b2a2b2a1a1a1b1a1a2a1c2a1b2c1a2b2b2a2b1a1a2c1a2b2c2c2a2a2c2a2b2a1c2b2c2b2a2c2a2c2c2a2a1a2a1c1b2a2a1b1',
+    '08': 'a2a2c2b2a1b1a1b1a1a2c1b2c1a2c1b2b2a1c1a1c2a2a2a2c2a2a1b2a1a2c2a1a1a2a2b1a2b1c2a2c2b2c1b2c1c2a1a1a2a1b1b2c1c1a1a1a1b2',
+    '09': 'b1c2a1a2c2a1c2b2a2b1a2a2b2a1a2c1c2a1a2a2c2c1b2a2a2a2c2c1a2a2b1b2a2b2a2c2c2a2a2a1a1b2a2a2a2c2c2a1b2c2a1a1a2a2c2',
+    '10': 'c2a2c2b2a2c2b2a1a1c2a2c2a2b2b2a2c2a1b2c1a2a1c2b1a2a1b1a2b2a1c2a1c2c2b1b2c2a2c1a1c2a1a1a1a2a2a2b1a1a1a2a2a2a2a2a1b1',
+    '11': 'a2c1c2a2a2c2a1c2c2b2a2b2a2a2c2a2a2a2c1b1a2a2b2c2c2a2a1a2c2a2a2a1c2c1a1a2b2a2a2a2a2b1a2c1c2a2a2b1c1a1c2b1a1a2a1a2',
+    '12': 'c2b2c2a2a2c1c2a2c2b2a1a2c2b2c2a1a2a2c2a2a1a2c1b2c2a2c1a1b1a2c1a2a2a2a2b1c1c2a2a1a2b2b2c2a2b1a2a2c2a1b2a2b2b1',
+    '13': 'a2b1c2b1c1a2a2b2b2c2c1c2b2a2b1a2b2c2c1b2b2a1a1c1a2b2a1a1c1a2a1b2b1a2c1a2a2a1a2b2a1a1a2a2a2b2a2a1c1c2a2a2a2c2b2c1',
+    '14': 'a2a2a2a1b2a2b2a1c2a2b2c2c1c2a2b2a1a2b2a2a2b1a1b2a1c1b2a1a1c1a2c2b2a2c2a1a2a2c1a2b2a2a2b2c2b2a1a2b2a2c2a2c2c1c2',
+    '15': 'b1a2a2b2b2b2a2a1a2a2a1a1a1c1a2b2a2b2a2c2a2b1c2c2a2a2b2b2a1a2b1a1a2b2c2b2c1a2a1a2a2b2a2c2c2a2b2a1a1a2a2a1a2c2a2a1c1',
+    '16': 'b1a2a2c1b2c2a2a2b2a2a2c1b1c2a2c2a2c2b2b2a2a2a2a1c2b1b2c1b2a2c2a1b1a2b1c1a2c1a2a2c2c2c2b2c2a2a1b2b1b2b2b1a2',
+    '17': 'a1a1c1c2a2b2c2a1b2a1c2c2a1c2a2a2c2a1b1a2a1a2b2b2b2b1a2a2b2a2c2a2c1c2a1c2c2b2c1a2a2c2a2b2a2a2c1c1b2b1b2c2b1b2',
+    '18': 'a2a2b2a2b1c2b2a2a1a2b1a2b2c2a2a2a2a2a1a1b2a1a2b1a2a1a1a2b1a2b2a2a2a1a1a2a2a1c1c2a2b2b1c1a1a2b2c1a2a2a2c1c1a2c2a2c2b2'
+  };
+  var BAR_W = { a: 0.18, b: 0.30, c: 0.45 };
+  var GAP_W = { '1': 0.18, '2': 0.30 };
+
   var KEY = 'binari.console.v1';
+  var STAMP_AT = 1500; // 도장이 찍히는 시각(ms) — style.css의 --t와 같게
 
   function $(id) { return document.getElementById(id); }
 
@@ -35,6 +63,16 @@
     if (text != null) n.textContent = text;
     if (cls) n.className = cls;
     return n;
+  }
+
+  function barcodeSVG(code) {
+    var x = 0, rects = '';
+    for (var i = 0; i + 1 < code.length; i += 2) {
+      var w = BAR_W[code.charAt(i)];
+      rects += '<rect x="' + x.toFixed(2) + '" width="' + w + '" height="4.1"/>';
+      x += w + GAP_W[code.charAt(i + 1)];
+    }
+    return '<svg viewBox="0 0 30 4.1" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" fill="#E8EDEE">' + rects + '</svg>';
   }
 
   // ── 저장 (그 폰의 브라우저에만 남음). 막혀 있어도 화면은 정상 진행 ──
@@ -55,9 +93,8 @@
   function normalizeId(raw) {
     if (raw == null) return null;
     var s = String(raw).trim();
-    if (!/^\d{1,3}$/.test(s)) return null;
+    if (!/^\d{1,2}$/.test(s)) return null;
     var id = ('0' + parseInt(s, 10)).slice(-2);
-    if (parseInt(s, 10) > 99) return null;
     return Object.prototype.hasOwnProperty.call(ROSTER, id) ? id : null;
   }
 
@@ -100,7 +137,25 @@
 
   var who = activeId ? ROSTER[activeId] : null;
   var isArch = !!(who && who.arch);
+  var access = isArch ? 'ALL LAYERS' : 'LAYER 1'; // 실물 카드와 같게: 설계자만 ALL LAYERS
   document.body.setAttribute('data-role', isArch ? 'arch' : 'admin');
+
+  // ── 카드 번호 · 바코드 (부팅 카드와 홈 카드 둘 다) ──
+  function fillCard() {
+    var i, nodes = document.querySelectorAll('[data-card-no]');
+    for (i = 0; i < nodes.length; i++) nodes[i].textContent = activeId || '—';
+
+    nodes = document.querySelectorAll('[data-barcode]');
+    for (i = 0; i < nodes.length; i++) {
+      if (activeId && BARCODE[activeId]) {
+        nodes[i].innerHTML = barcodeSVG(BARCODE[activeId]);
+        nodes[i].removeAttribute('data-empty');
+      } else {
+        nodes[i].textContent = '';
+        nodes[i].setAttribute('data-empty', ''); // id 없음: 바코드 자리에 "—"
+      }
+    }
+  }
 
   // ── 홈 채우기 ──
   function fillHome() {
@@ -113,11 +168,11 @@
       rows.push(['ARCH ID', 'ROOT-2199-0000']);
       rows.push(['CLEARANCE', 'LV.MAX // ROOT']);
     } else {
-      if (who) rows.push(['ADMIN ID', 'ADM-2199-00' + activeId]);
+      rows.push(['ADMIN ID', who ? 'ADM-2199-00' + activeId : '—']);
       rows.push(['CLEARANCE', 'LV.1 // NEW ADMIN']);
     }
-    rows.push(['ACCESS', 'ALL LAYERS']);
-    if (who) rows.push(['ISSUED', who.issued]);
+    rows.push(['ACCESS', access]);
+    rows.push(['ISSUED', who ? who.issued : '—']);
     rows.push(['STATUS', isArch ? 'ROOT ACCESS' : 'ACCESS GRANTED', 'on']);
 
     var dl = $('id-rows');
@@ -158,7 +213,7 @@
       ['연결', 'CONNECT', 'OK'],
       ['식별', isArch ? 'ROOT-2199-0000' : (who ? 'ADM-2199-00' + activeId : 'ADMIN'), 'OK'],
       ['권한', isArch ? 'LV.MAX // ROOT' : 'LV.1 // NEW ADMIN', 'OK'],
-      ['접속', 'ALL LAYERS', 'OK']
+      ['접속', access, 'OK']
     ];
     var ol = $('log');
     ol.textContent = '';
@@ -179,8 +234,15 @@
 
   function remember() { save(activeId); }
 
+  // 카드를 읽는 동안만: 빠르고 또렷한 스캔 라인 + 조준 링
+  function setScanning(on) {
+    if (on) document.body.setAttribute('data-scan', '');
+    else document.body.removeAttribute('data-scan');
+  }
+
   function showHome(focus) {
     if (stampTimer) { clearTimeout(stampTimer); stampTimer = null; }
+    setScanning(false);
     bootEl.hidden = true;
     homeEl.hidden = false;
     window.scrollTo(0, 0);
@@ -193,13 +255,23 @@
     bootEl.setAttribute('data-mode', kind);
     bootEl.hidden = false;
 
-    // 도장이 찍힐 즈음 이 id를 기억 (그 전에 닫으면 다음에 다시 보여 줌)
-    stampTimer = setTimeout(remember, kind === 'boot' ? 1900 : 500);
+    var reduced = false;
+    try { reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+
+    if (kind === 'boot' && !reduced) setScanning(true);
+
+    // 도장이 찍히는 순간: 스캔을 끝내고 이 id를 기억 (그 전에 닫으면 다음에 다시 보여 줌)
+    stampTimer = setTimeout(function () {
+      stampTimer = null;
+      setScanning(false);
+      remember();
+    }, kind === 'boot' ? STAMP_AT : 400);
 
     $('skip').addEventListener('click', function () { remember(); showHome(true); });
     $('enter').addEventListener('click', function () { remember(); showHome(true); });
   }
 
+  fillCard();
   fillHome();
 
   if (mode === 'home') {
