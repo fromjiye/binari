@@ -63,8 +63,8 @@
       bust: sp.bust || (ASSET + id + '-bust.webp')
     };
   }
-  // {admin}: id가 있으면 "○○○ 관리자님", 없으면 "관리자님"
-  var ADMIN = B.id ? B.name + ' 관리자님' : '관리자님';
+  // {admin}: id가 있으면 "○○○ 관리자님"(설계자 00은 "○○○ 설계자님"), 없으면 "관리자님"
+  var ADMIN = B.id ? B.name + (B.arch ? ' 설계자님' : ' 관리자님') : '관리자님';
   function fill(text) { return String(text).replace(/\{admin\}/g, ADMIN); }
 
   // 이름표 글자색: 디코더 색 위에서 잘 보이는 쪽(흰색 / 검정)

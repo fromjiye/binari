@@ -963,6 +963,8 @@ body[data-scan] .ring::before { animation: spin 18s linear infinite; }
 .chat-log, .choices { position: relative; z-index: 1; }
 .hack[data-phase="stay"] { z-index: 0; background: none; pointer-events: none; }
 .hack[data-phase="stay"] .hack-paint { opacity: 0.4; }
+/* 주황 붓 자국은 말풍선 글을 방해하지 않게 훨씬 옅게 (튀어나오는 순간의 0.4 → 0.14) */
+.hack[data-phase="stay"] .brush { opacity: 0.35; }
 .hack[data-phase="stay"] .brush path,
 .hack[data-phase="stay"] .chalk path { animation: none; stroke-dashoffset: 0; }
 .hack[data-phase="stay"] .doodle { animation: none; opacity: 0.32; }
