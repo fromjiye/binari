@@ -25,7 +25,7 @@
     '17': { ko: '최주혜', en: 'CHOI JU HYE', issued: '2026.11.29' },
     '18': { ko: '유대겸', en: 'YOO DAE KYUM', issued: '2026.11.25' },
     '19': { ko: '강윤기', en: 'KANG YUN KI', issued: '2026.11.25' },
-    '20': { ko: '박원철', en: 'PARK WON CHUL', issued: '—' } // 명예 발급. 발급일이 정해지면 채움
+    '20': { ko: '박원철', en: 'PARK WON CHUL', issued: '2026.11.28' } // 명예 발급
   };
 
   // 바코드 — 실물 관리자 카드와 같은 패턴.
