@@ -23,7 +23,9 @@
     '15': { ko: '김세령', en: 'KIM SE RYUNG', issued: '2026.11.28' },
     '16': { ko: '송정민', en: 'SONG JUNG MIN', issued: '2026.11.28' },
     '17': { ko: '최주혜', en: 'CHOI JU HYE', issued: '2026.11.29' },
-    '18': { ko: '유대겸', en: 'YOO DAE KYUM', issued: '2026.11.25' }
+    '18': { ko: '유대겸', en: 'YOO DAE KYUM', issued: '2026.11.25' },
+    '19': { ko: '강윤기', en: 'KANG YUN KI', issued: '2026.11.25' },
+    '20': { ko: '박원철', en: 'PARK WON CHUL', issued: '—' } // 명예 발급. 발급일이 정해지면 채움
   };
 
   // 바코드 — 실물 관리자 카드와 같은 패턴.
@@ -48,7 +50,9 @@
     '15': 'b1a2a2b2b2b2a2a1a2a2a1a1a1c1a2b2a2b2a2c2a2b1c2c2a2a2b2b2a1a2b1a1a2b2c2b2c1a2a1a2a2b2a2c2c2a2b2a1a1a2a2a1a2c2a2a1c1',
     '16': 'b1a2a2c1b2c2a2a2b2a2a2c1b1c2a2c2a2c2b2b2a2a2a2a1c2b1b2c1b2a2c2a1b1a2b1c1a2c1a2a2c2c2c2b2c2a2a1b2b1b2b2b1a2',
     '17': 'a1a1c1c2a2b2c2a1b2a1c2c2a1c2a2a2c2a1b1a2a1a2b2b2b2b1a2a2b2a2c2a2c1c2a1c2c2b2c1a2a2c2a2b2a2a2c1c1b2b1b2c2b1b2',
-    '18': 'a2a2b2a2b1c2b2a2a1a2b1a2b2c2a2a2a2a2a1a1b2a1a2b1a2a1a1a2b1a2b2a2a2a1a1a2a2a1c1c2a2b2b1c1a1a2b2c1a2a2a2c1c1a2c2a2c2b2'
+    '18': 'a2a2b2a2b1c2b2a2a1a2b1a2b2c2a2a2a2a2a1a1b2a1a2b1a2a1a1a2b1a2b2a2a2a1a1a2a2a1c1c2a2b2b1c1a1a2b2c1a2a2a2c1c1a2c2a2c2b2',
+    '19': 'b1c1a2a1b2a2a2b2a2b1a2a2c2a1a1c2c2a1a1a1a2c2c2b1a2a2a2b2a1c2a1b2a2a2b2a2a2c2a2b1b1a2a2a2a2a1a2a1a1a1c2b2a2b2a2a2a1a1b2',
+    '20': 'a1c1b1a2b2a1b2a2b2a1a2a1a1a2c2c2c1a1c2b2a1c2b2b2c2b2c2b1b2a2a2b2b1a1b1a1a2a2a2a2a1a1b2a2a2a2a2c2a2a2a2c2b2a2c2a2a2'
   };
   var BAR_W = { a: 0.18, b: 0.30, c: 0.45 };
   var GAP_W = { '1': 0.18, '2': 0.30 };
