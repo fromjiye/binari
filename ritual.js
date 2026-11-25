@@ -782,9 +782,15 @@
     }
 
     // 처음 한 판을 끝내면 유실물 "보내지 못한 음성 메시지" 획득 (인벤토리는 다음 단계에서 연결)
+    // 첫 완료 때 한 번만 "회수 기록 해제" 연출을 보여 주려고 voicePending 을 같이 적어 둔다.
+    // 연출은 결과 화면에서 나갈 때 인벤토리에서 나오고, 본 뒤에는 지워진다 (inventory.js)
     try {
       var relics = JSON.parse(localStorage.getItem('binari.relics.v1')) || {};
-      if (!relics.voice) { relics.voice = Date.now(); localStorage.setItem('binari.relics.v1', JSON.stringify(relics)); }
+      if (!relics.voice) {
+        relics.voice = Date.now();
+        relics.voicePending = 1;
+        localStorage.setItem('binari.relics.v1', JSON.stringify(relics));
+      }
     } catch (e) {}
 
     // 메신저로 돌아가면 디코더가 반응 (벼리 기록을 넘겼는지 같이 알림)
@@ -829,6 +835,20 @@
   }
 
   $('rs-retry').addEventListener('click', function () { sfx('tap'); start(); });
+
+  // 첫 완료의 결과 화면에서 나갈 때: 메신저 대신 인벤토리로 가서 "회수 기록 해제" 연출을 보여 준다 (한 번만)
+  function relicPending() {
+    try { return !!(JSON.parse(localStorage.getItem('binari.relics.v1')) || {}).voicePending; }
+    catch (e) { return false; }
+  }
+  function leaveResult(ev) {
+    if (root.getAttribute('data-view') !== 'result' || !relicPending()) return; // 두 번째 판부터는 원래대로
+    ev.stopPropagation();
+    sfx('tap');
+    B.go('inventory');
+  }
+  var leaveBtns = root.querySelectorAll('#rt-result [data-go="decoder"], .chat-head .back');
+  for (var lb = 0; lb < leaveBtns.length; lb++) leaveBtns[lb].addEventListener('click', leaveResult);
 
   function onScreen(name) { if (name === 'ritual') start(); else stop(); }
   document.addEventListener('binari:screen', function (ev) { onScreen(ev.detail); });

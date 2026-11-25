@@ -225,7 +225,9 @@
         setUnlockDone(true);
         sfx('relic');
         var v = load();
-        if (!v[item.key]) { v[item.key] = Date.now(); save(v); }
+        if (!v[item.key]) v[item.key] = Date.now();
+        if (item.key === 'voice') delete v.voicePending; // 굿판 첫 완료 연출은 한 번만
+        save(v);
         if (stopAt != null) { resolve(); return; } // 캡처용: 끝 화면에서 멈춤
         setTimeout(function () {
           unlockEl.hidden = true;
@@ -263,9 +265,16 @@
     playUnlock(item);
   }
 
+  // 굿판을 처음 끝낸 뒤 아직 연출을 못 봤으면: 02번을 키링과 같은 연출로 한 번만
+  function handlePending() {
+    if (unlocking || forced) return;
+    if (load().voicePending) playUnlock(byNo('02'));
+  }
+
   function open() {
     render();
     handleTag();
+    handlePending();
   }
   function close() {
     closeDetail();
@@ -292,6 +301,14 @@
       save = keep;
       return;
     }
+    if (name === 'voice-mid' || name === 'voice-end') {
+      forced = { r01: 1, voice: 1 }; render();
+      var keep2 = save; save = function () {};
+      playUnlock(byNo('02'), name === 'voice-mid' ? 0.56 : 1);
+      save = keep2;
+      return;
+    }
+    if (name === 'voice-after') { forced = { r01: 1, voice: 1 }; render(); highlight('02'); return; }
     if (name === 'after') { forced = { r01: 1 }; render(); highlight('01'); return; }
     if (name === 'already') { forced = { r01: 1 }; render(); toast(TEXT.already); highlight('01'); return; }
     if (name === 'detail') { forced = { r01: 1, voice: 1 }; render(); openDetail(byNo('01')); return; }
