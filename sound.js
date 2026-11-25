@@ -115,6 +115,7 @@
       noise({ type: 'highpass', f: 5200, q: 0.7, dur: 0.9, g: 0.02 });
     },
     stage: function () { tone({ f: BASE, dur: 0.14, g: 0.04 }); },
+    relic: function () { [1, 3 / 2, 2].forEach(function (r, i) { tone({ f: BASE * r, dur: 0.4, g: 0.045, at: i * 0.1 }); }); }, // 유실물 회수 기록 해제
     dread: function () {                                                                      // 대귀 출현: 낮고 부드럽게 (경고음 아님)
       tone({ f: 148, f2: 111, dur: 0.7, g: 0.07, attack: 0.08 });
       tone({ f: 222, dur: 0.6, g: 0.03, attack: 0.1, at: 0.05 });

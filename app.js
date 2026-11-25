@@ -174,7 +174,7 @@
   //  home  : 같은 id로 다시 옴, 또는 id 없이 다시 옴 → 부팅 없이 홈
   var mode;
   if (params.has('relic')) {
-    // 유실물 키링 주소. INVENTORY는 다음 단계에서 붙임 — 지금은 부팅 없이 홈으로만.
+    // 유실물 키링 주소: 부팅 없이 바로 INVENTORY 로 (아래에서 화면을 연다)
     mode = 'home';
   } else if (!saved) {
     mode = 'boot';
@@ -282,7 +282,7 @@
   var stampTimer = null;
 
   // ── 화면 이동: 주소 끝의 #decoder · #ritual 로 구분 (없으면 홈). 폰의 뒤로 가기가 그대로 먹음 ──
-  var SCREENS = { home: homeEl, decoder: $('decoder'), ritual: $('ritual') };
+  var SCREENS = { home: homeEl, decoder: $('decoder'), ritual: $('ritual'), inventory: $('inventory') };
   var booting = false;
 
   function screenFromHash() {
@@ -397,7 +397,8 @@
     emit: emit,
     readEvents: readEvents,
     writeEvents: writeEvents,
-    keys: { decoder: KEY_DECODER }
+    keys: { decoder: KEY_DECODER },
+    relic: params.has('relic') ? params.get('relic') : null // 키링 태그 주소 ?relic=번호 (inventory.js 가 처리)
   };
 
   // 테스트용: ?event=ritual_done 처럼 붙이면 그 모듈을 마친 것으로 기록
@@ -408,7 +409,8 @@
 
   if (mode === 'home') {
     // relic로 처음 들어온 경우에는 기억하지 않는다 (다음 정식 접속 때 부팅을 보여 주기 위해)
-    render();
+    if (params.has('relic')) go('inventory', true); // 키링 태그: 부팅 없이 바로 유실물 인벤토리
+    else render();
   } else if (mode === 'boot') {
     showGate(); // 첫 접속: 탭 화면 → 부팅
   } else {

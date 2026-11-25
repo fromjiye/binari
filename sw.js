@@ -29,7 +29,13 @@ var ASSETS = [
   'assets/decoder/doodle-02-smug.png',
   'assets/decoder/doodle-03-wink.png',
   'assets/decoder/doodle-05-puzzled.png',
-  'data/decoder.json'
+  'data/decoder.json',
+  'assets/relic/relic-01.webp',
+  'assets/relic/relic-02.webp',
+  'assets/relic/relic-03.webp',
+  'assets/relic/relic-04.webp',
+  'assets/relic/relic-05.webp',
+  'assets/relic/relic-06.webp'
 ].map(abs);
 
 function abs(path) { return new URL(path, self.registration.scope).href; }
