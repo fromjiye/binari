@@ -190,6 +190,7 @@ body[data-scan] .fx::after { opacity: 1; transition-duration: 0.15s; }
 .boot {
   display: flex;
   flex-direction: column;
+  gap: 16px;
   --t: 1.5s; /* 도장이 찍히는 시각 — app.js의 STAMP_AT과 같게 */
 }
 .boot[data-mode="greet"] { --t: 0.15s; }
@@ -229,7 +230,6 @@ body[data-scan] .fx::after { opacity: 1; transition-duration: 0.15s; }
 }
 
 .log {
-  margin-top: 14px;
   font-family: var(--mono);
   font-size: 12.5px;
   line-height: 21px;
@@ -256,14 +256,14 @@ body[data-scan] .fx::after { opacity: 1; transition-duration: 0.15s; }
     "greet greet"
     "auth auth"
     "foot seal";
-  margin-top: clamp(16px, 4vh, 40px);
-  margin-bottom: 56px; /* 카드 밖으로 걸친 도장 자리 */
+  /* 부팅 로그와 버튼 사이 세로 가운데 (카드 밖으로 걸친 도장 40px까지 한 묶음으로) */
+  margin-top: auto;
+  margin-bottom: auto;
   padding: 18px 18px 16px;
   border: 1px solid var(--line);
   border-top: 6px solid var(--accent);
   background-color: var(--panel);
 }
-.boot[data-mode="greet"] .pass { margin-top: clamp(64px, 14vh, 130px); }
 
 /* 카드를 훑는 스캔 띠 (부팅 때만) */
 .boot[data-mode="boot"] .pass {
@@ -407,7 +407,7 @@ body[data-scan] .ring::before { animation: spin 18s linear infinite; }
 
 /* 콘솔 열기: 가로줄 무늬, 모서리는 직각 */
 .enter {
-  margin-top: auto;
+  margin-top: 40px; /* 카드 밖으로 걸친 도장 자리 */
   width: 100%;
   min-height: 54px;
   background-color: var(--accent);
