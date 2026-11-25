@@ -1224,8 +1224,8 @@ body[data-scan] .ring::before { animation: spin 18s linear infinite; }
   background: rgba(15, 20, 21, 0.94);
   touch-action: manipulation;
 }
-.nm-han { margin-top: 4px; font-size: 27px; font-weight: 700; line-height: 1.1; color: var(--k); }
-.nm-ko { font-size: 11px; line-height: 1; color: var(--dim); }
+.nm-ko { margin-top: 5px; font-size: 27px; font-weight: 700; line-height: 1.1; color: var(--k); }
+.nm-han { font-size: 11px; line-height: 1; color: var(--dim); }
 .nm-faces { display: flex; gap: 2px; margin-top: 3px; }
 .nm-faces img { display: block; width: 30px; height: 30px; object-fit: cover; background: #111617; }
 .nm-faces img:only-child { width: 34px; height: 34px; }

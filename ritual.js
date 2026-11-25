@@ -368,8 +368,8 @@
       b.setAttribute('data-kind', k.k);
       b.setAttribute('aria-label', k.ko + ' · ' + k.names);
       b.style.setProperty('--k', k.color);
-      b.appendChild(el('span', 'nm-han', k.han));
-      b.appendChild(el('span', 'nm-ko', k.ko));
+      b.appendChild(el('span', 'nm-ko', k.ko));   // 한글을 크게
+      b.appendChild(el('span', 'nm-han', k.han)); // 한자는 그 아래 작게
       var faces = el('span', 'nm-faces');
       k.who.forEach(function (w) {
         var img = document.createElement('img');
@@ -498,13 +498,13 @@
       }
     }
     c.globalAlpha = alpha;
-    if (!black) { // 색만으로 구분하지 않게 한자를 같이
+    if (!black) { // 색만으로 구분하지 않게 한글 한 글자(청 · 적 · 황 · 백)를 같이
       c.fillStyle = 'rgba(8,11,12,0.9)';
       c.fillRect(-15, -15, 30, 30);
       c.fillStyle = color;
       c.font = '700 22px "IBM Plex Sans KR", sans-serif';
       c.textAlign = 'center'; c.textBaseline = 'middle';
-      c.fillText(KIND[g.kind].han, 0, 1);
+      c.fillText(KIND[g.kind].ko, 0, 1);
     }
     if (g.state === 'alive') { // 남은 시간
       var rem = Math.max(0, 1 - age / g.life);
@@ -743,14 +743,7 @@
     }
     if (name === 'result') {
       run = { perfect: 2, startSync: 25, score: 16480, maxCombo: 14, roots: 2 };
-      try {
-        localStorage.setItem('binari.rank.v1', JSON.stringify([
-          { id: 'A1', name: '파도', score: 13920, at: 1 }, { id: 'A2', name: '새벽', score: 11250, at: 2 },
-          { id: 'A3', name: 'moon', score: 9800, at: 3 }, { id: 'A4', name: '관리자7', score: 7410, at: 4 }
-        ]));
-      } catch (e) {}
-      result(t);
-      setTimeout(function () { $('rs-name').value = '바다'; $('rs-form').requestSubmit ? $('rs-form').requestSubmit() : null; }, 80);
+      result(t); // 예시 기록은 넣지 않는다. 등록된 기록이 없으면 BYEORI ★ 기록 줄만 보임
     }
   };
 })();
