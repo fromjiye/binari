@@ -421,4 +421,16 @@
     bar.hidden = false;
     $('inapp-close').addEventListener('click', function () { bar.hidden = true; });
   }
+
+  // ── 오프라인 동작: 서비스 워커(sw.js)가 사이트 파일을 받아 두고, 새 버전은 연결됐을 때 알아서 갈아 둔다 ──
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').then(function () {
+        return navigator.serviceWorker.ready;
+      }).then(function (reg) {
+        // 화면이 다 뜬 뒤에 폰트 조각도 받아 두라고 알림
+        if (reg.active) reg.active.postMessage({ type: 'warm' });
+      }).catch(function () {});
+    });
+  }
 })();
