@@ -58,6 +58,8 @@
   var GAP_W = { '1': 0.18, '2': 0.30 };
 
   var KEY = 'binari.console.v1';
+  var KEY_EVENTS = 'binari.events.v1';   // 다른 모듈을 마쳤다는 기록 (디코더가 돌아왔을 때 반응)
+  var KEY_DECODER = 'binari.decoder.v1'; // 디코더 메신저 진행 (decoder.js)
   var STAMP_AT = 1500; // 도장이 찍히는 시각(ms) — style.css의 --t와 같게
 
   function $(id) { return document.getElementById(id); }
@@ -90,7 +92,26 @@
     try { localStorage.setItem(KEY, JSON.stringify({ id: id, at: Date.now() })); } catch (e) {}
   }
   function clear() {
-    try { localStorage.removeItem(KEY); } catch (e) {}
+    try {
+      localStorage.removeItem(KEY);
+      localStorage.removeItem(KEY_EVENTS);
+      localStorage.removeItem(KEY_DECODER);
+    } catch (e) {}
+  }
+
+  // ── 모듈 사이 알림: 굿판 · 테스트를 마치면 emit, 디코더가 열릴 때 안 본 것에 반응 ──
+  function readEvents() {
+    try { var v = JSON.parse(localStorage.getItem(KEY_EVENTS)); return Array.isArray(v) ? v : []; }
+    catch (e) { return []; }
+  }
+  function writeEvents(list) {
+    try { localStorage.setItem(KEY_EVENTS, JSON.stringify(list)); } catch (e) {}
+  }
+  function emit(name) {
+    if (!/^[a-z_]{1,24}$/.test(String(name))) return;
+    var list = readEvents();
+    list.push({ e: String(name), seen: false, at: Date.now() });
+    writeEvents(list);
   }
 
   // ?id=7, ?id=07 모두 '07'. 명단에 없으면 null (그냥 "관리자"로 진행).
@@ -255,6 +276,38 @@
   var homeEl = $('home');
   var stampTimer = null;
 
+  // ── 화면 이동: 주소 끝의 #decoder · #ritual 로 구분 (없으면 홈). 폰의 뒤로 가기가 그대로 먹음 ──
+  var SCREENS = { home: homeEl, decoder: $('decoder'), ritual: $('ritual') };
+  var booting = false;
+
+  function screenFromHash() {
+    var h = (location.hash || '').replace('#', '');
+    return h !== 'home' && Object.prototype.hasOwnProperty.call(SCREENS, h) ? h : 'home';
+  }
+  function render() {
+    if (booting) return;
+    var name = screenFromHash();
+    bootEl.hidden = true;
+    for (var k in SCREENS) {
+      if (Object.prototype.hasOwnProperty.call(SCREENS, k)) SCREENS[k].hidden = (k !== name);
+    }
+    document.body.setAttribute('data-screen', name);
+    window.scrollTo(0, 0);
+    try { document.dispatchEvent(new CustomEvent('binari:screen', { detail: name })); } catch (e) {}
+  }
+  function go(name, replace) {
+    var url = location.pathname + location.search + (name === 'home' ? '' : '#' + name);
+    try { history[replace ? 'replaceState' : 'pushState'](null, '', url); }
+    catch (e) { location.hash = name === 'home' ? '' : name; }
+    render();
+  }
+  window.addEventListener('popstate', render);
+  window.addEventListener('hashchange', render);
+  document.addEventListener('click', function (ev) {
+    var t = ev.target && ev.target.closest ? ev.target.closest('[data-go]') : null;
+    if (t) go(t.getAttribute('data-go'));
+  });
+
   function remember() { save(activeId); }
 
   // 카드를 읽는 동안만: 빠르고 또렷한 스캔 라인 + 조준 링
@@ -263,20 +316,24 @@
     else document.body.removeAttribute('data-scan');
   }
 
-  function showHome(focus) {
+  // 접속 승인 → 콘솔 열기 다음 첫 화면은 디코더 메신저 (홈은 메신저에서 나가면 보임)
+  function finishBoot() {
     if (stampTimer) { clearTimeout(stampTimer); stampTimer = null; }
     setScanning(false);
-    bootEl.hidden = true;
-    homeEl.hidden = false;
-    window.scrollTo(0, 0);
-    if (focus) { try { $('id-name').focus({ preventScroll: true }); } catch (e) {} }
+    remember();
+    booting = false;
+    go('decoder', true);
   }
 
   function showBoot(kind) {
     fillGreet();
     if (kind === 'boot') fillLog();
+    booting = true;
+    document.body.setAttribute('data-screen', 'boot');
     bootEl.setAttribute('data-mode', kind);
     bootEl.hidden = false;
+    // 메신저 첫 등장에 쓸 그림을 미리 받아 둠
+    try { new Image().src = 'assets/decoder/ara-bust.webp'; } catch (e) {}
 
     var reduced = false;
     try { reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
@@ -290,16 +347,31 @@
       remember();
     }, kind === 'boot' ? STAMP_AT : 400);
 
-    $('skip').addEventListener('click', function () { remember(); showHome(true); });
-    $('enter').addEventListener('click', function () { remember(); showHome(true); });
+    $('skip').addEventListener('click', finishBoot);
+    $('enter').addEventListener('click', finishBoot);
   }
+
+  // 다른 스크립트(decoder.js 등)가 쓰는 공용 창구
+  window.BINARI = {
+    id: activeId,
+    name: who ? who.ko : '관리자',
+    arch: isArch,
+    go: go,
+    emit: emit,
+    readEvents: readEvents,
+    writeEvents: writeEvents,
+    keys: { decoder: KEY_DECODER }
+  };
+
+  // 테스트용: ?event=ritual_done 처럼 붙이면 그 모듈을 마친 것으로 기록
+  if (params.get('event')) emit(params.get('event'));
 
   fillCard();
   fillHome();
 
   if (mode === 'home') {
     // relic로 처음 들어온 경우에는 기억하지 않는다 (다음 정식 접속 때 부팅을 보여 주기 위해)
-    showHome(false);
+    render();
   } else {
     showBoot(mode);
   }

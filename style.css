@@ -10,6 +10,7 @@
   --cyan: #18d9ee;
   --yellow: #fce80a;
   --ink: #0d0d0d;
+  --byeori: #f26a1b; /* 벼리 낙서 색 */
   --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
   --sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
   color-scheme: dark;
@@ -653,6 +654,355 @@ body[data-scan] .ring::before { animation: spin 18s linear infinite; }
 
 .noscript { padding: 40px 20px; text-align: center; font-family: var(--sans); color: #e8eef0; }
 
+/* 홈: 열린 모듈 */
+.modules li { position: relative; }
+.m-link { position: absolute; inset: 0; z-index: 1; }
+.modules li.is-open .m-st { border-color: var(--accent); color: var(--accent); }
+
+/* ══════════════ DECODER — 디코더 메신저 ══════════════ */
+.chat,
+.standby { display: flex; flex-direction: column; padding: 0; }
+.chat { flex: none; height: 100vh; height: 100dvh; overflow: hidden; }
+
+.chat-head {
+  position: relative;
+  z-index: 2;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: calc(16px + env(safe-area-inset-top)) 20px 11px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(5, 7, 7, 0.88);
+}
+.back {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 44px;
+  margin: -8px 0 -8px -6px;
+  padding: 0 8px 0 6px;
+  font-size: 14px;
+  color: var(--dim);
+}
+.back span { font-family: var(--mono); font-size: 22px; line-height: 1; color: var(--accent); }
+.chat-title { min-width: 0; padding-left: 12px; border-left: 1px solid var(--line); }
+.chat-en { font-family: var(--mono); font-size: 13px; font-weight: 600; letter-spacing: 0.16em; }
+.chat-ko { font-size: 11.5px; letter-spacing: 0.08em; color: var(--dim); }
+/* 벼리가 다녀간 뒤 머리줄에 남는 낙서 */
+.chat-tag { margin-left: auto; }
+.chat[data-hacked] .chat-tag {
+  width: 30px;
+  aspect-ratio: 478 / 525;
+  background: var(--byeori);
+  transform: rotate(8deg);
+  -webkit-mask: url("assets/decoder/doodle-03-wink.png") center / contain no-repeat;
+  mask: url("assets/decoder/doodle-03-wink.png") center / contain no-repeat;
+}
+
+.chat-log {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 20px 12px;
+}
+
+.msg {
+  flex: none;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  grid-template-areas: "face who" "face bubble";
+  column-gap: 11px;
+  row-gap: 5px;
+  justify-items: start;
+  margin-top: 10px;
+  animation: rise 0.25s ease-out;
+}
+.msg.cont { grid-template-areas: ". bubble"; margin-top: 0; }
+.msg.instant { animation: none; }
+
+/* 프로필: 정사각형(직각) + 브래킷 */
+.face { grid-area: face; position: relative; width: 40px; height: 40px; }
+.face img { display: block; width: 100%; height: 100%; object-fit: cover; background: #111617; }
+.face::before,
+.face::after { content: ""; position: absolute; width: 9px; height: 9px; pointer-events: none; }
+.face::before { left: -3px; top: -3px; border-left: 2px solid var(--accent); border-top: 2px solid var(--accent); }
+.face::after { right: -3px; bottom: -3px; border-right: 2px solid var(--accent); border-bottom: 2px solid var(--accent); }
+
+.who { grid-area: who; display: flex; align-items: center; gap: 7px; }
+.who b { padding: 1px 7px 2px; background: var(--who); font-size: 12.5px; font-weight: 700; line-height: 1.4; }
+.who span { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; color: var(--dim); }
+
+.bubble {
+  grid-area: bubble;
+  max-width: 100%;
+  padding: 9px 12px 10px;
+  background: rgba(15, 20, 21, 0.94);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--who);
+  font-size: 15px;
+  line-height: 1.5;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+/* 관람객의 대답 */
+.msg.me { display: flex; justify-content: flex-end; margin-top: 12px; }
+.msg.me .bubble {
+  max-width: 82%;
+  border: 1px solid rgba(var(--a), 0.7);
+  background: rgba(var(--a), 0.12);
+}
+
+.typing .bubble { display: inline-flex; align-items: center; gap: 5px; padding: 14px 12px; }
+.typing i { width: 6px; height: 6px; background: var(--who); animation: blink 1s steps(1, end) infinite; }
+.typing i:nth-child(2) { animation-delay: 0.2s; }
+.typing i:nth-child(3) { animation-delay: 0.4s; }
+@keyframes blink { 50% { opacity: 0.2; } }
+
+.choices { flex: none; display: flex; flex-direction: column; gap: 7px; padding: 6px 20px 0; }
+.choices:empty { display: none; }
+.choice {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid rgba(var(--a), 0.6);
+  background-color: rgba(10, 14, 15, 0.92);
+  background-image: linear-gradient(rgba(var(--a), 0.08), rgba(var(--a), 0.08));
+  text-align: left;
+  font-size: 15px;
+  line-height: 1.4;
+  word-break: keep-all;
+  animation: rise 0.25s ease-out both;
+}
+.choice:active { background-image: linear-gradient(rgba(var(--a), 0.24), rgba(var(--a), 0.24)); }
+.choice-no { flex: none; font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--accent); }
+
+.chat-foot { position: relative; z-index: 2; flex: none; padding: 10px 20px calc(18px + env(safe-area-inset-bottom)); }
+/* 임무 바로 가기: 늘 아래에 고정. 콘솔 열기와 같은 가로줄 무늬 */
+.mission {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 50px;
+  background-color: var(--accent);
+  background-image: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0 1px, transparent 1px 3px);
+  color: var(--ink);
+  font-size: 15.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.mission span { font-family: var(--mono); font-size: 13px; }
+.mission:focus-visible { outline-color: var(--text); }
+
+/* ── 디코더 첫 등장: 반신 누끼 + 이름표 ── */
+.intro {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  background: rgba(5, 7, 7, 0.96);
+  cursor: pointer;
+}
+.intro::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 6px;
+  background: var(--who);
+}
+.intro::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 6px;
+  bottom: 0;
+  width: 42%;
+  background: linear-gradient(180deg, var(--who), transparent 88%);
+  opacity: 0.3;
+}
+.intro-bust {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  bottom: 0;
+  width: auto;
+  max-width: none;
+  height: min(82vh, 176vw);
+  height: min(82dvh, 176vw);
+  transform: translateX(-50%);
+  animation: intro-up 0.6s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+@keyframes intro-up {
+  from { opacity: 0; transform: translate(-50%, 7%); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+.intro-plate {
+  position: absolute;
+  z-index: 2;
+  left: 20px;
+  right: 20px;
+  bottom: calc(34px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 11px 16px 14px;
+  background: rgba(8, 11, 12, 0.92);
+  border: 1px solid var(--line);
+  border-left: 6px solid var(--who);
+  animation: rise 0.35s ease-out 0.4s both;
+}
+.intro-plate b { font-size: 46px; font-weight: 700; line-height: 1.12; letter-spacing: 0.04em; }
+.intro-plate span { font-family: var(--mono); font-size: 13px; font-weight: 600; letter-spacing: 0.16em; }
+.intro[data-phase="out"] { animation: fadeout 0.38s ease-in forwards; }
+@keyframes fadeout { to { opacity: 0; } }
+
+/* ── 벼리 해킹: 오렌지 붓 + 흰 분필 낙서가 화면을 덮음 (글리치는 쓰지 않음) ── */
+.hack {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  overflow: hidden;
+  background: rgba(5, 7, 7, 0.5);
+  cursor: pointer;
+}
+.hack-paint { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hack .brush path {
+  stroke-dasharray: 560;
+  stroke-dashoffset: 560;
+  animation: paint 0.34s cubic-bezier(0.3, 0.7, 0.3, 1) forwards;
+  animation-delay: var(--d);
+}
+.hack .chalk path {
+  stroke-dasharray: 320;
+  stroke-dashoffset: 320;
+  animation: paint 0.3s steps(6, end) forwards;
+  animation-delay: var(--d);
+}
+@keyframes paint { to { stroke-dashoffset: 0; } }
+
+/* 벼리의 도깨비 낙서 (흰 분필) */
+.doodle {
+  position: absolute;
+  aspect-ratio: 478 / 525;
+  background: #f4f6f6;
+  opacity: 0;
+  animation: show 0.22s steps(3, end) forwards;
+  animation-delay: var(--d);
+  -webkit-mask: center / contain no-repeat;
+  mask: center / contain no-repeat;
+}
+.doodle.d1 { left: 7%; top: 26%; width: 40%; transform: rotate(-9deg); -webkit-mask-image: url("assets/decoder/doodle-03-wink.png"); mask-image: url("assets/decoder/doodle-03-wink.png"); }
+.doodle.d2 { left: 8%; top: 61%; width: 23%; transform: rotate(8deg); -webkit-mask-image: url("assets/decoder/doodle-02-smug.png"); mask-image: url("assets/decoder/doodle-02-smug.png"); }
+.doodle.d3 { left: 46%; top: 12%; width: 22%; transform: rotate(11deg); -webkit-mask-image: url("assets/decoder/doodle-05-puzzled.png"); mask-image: url("assets/decoder/doodle-05-puzzled.png"); }
+
+/* 화면 옆에서 튀어나오는 벼리 */
+.hack-bust {
+  position: absolute;
+  right: -22%;
+  bottom: 0;
+  width: min(100%, 440px);
+  max-width: none;
+  height: auto;
+  transform-origin: 100% 100%;
+  filter: drop-shadow(-7px 5px 0 rgba(242, 106, 27, 0.95));
+  animation: peek 0.5s cubic-bezier(0.2, 1.25, 0.4, 1) 0.5s both;
+}
+@keyframes peek {
+  from { transform: translateX(112%) rotate(9deg); }
+  to { transform: translateX(0) rotate(-3deg); }
+}
+.hack-plate {
+  position: absolute;
+  left: 18px;
+  bottom: calc(94px + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 5px 12px 8px;
+  background: var(--byeori);
+  color: var(--ink);
+  transform: rotate(-4deg);
+  opacity: 0;
+  animation: show 0.2s steps(2, end) 1.1s forwards;
+}
+.hack-plate b { font-size: 34px; font-weight: 700; line-height: 1.12; }
+.hack-plate span { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.14em; }
+.hack-stamp {
+  position: absolute;
+  left: 18px;
+  bottom: calc(154px + env(safe-area-inset-bottom));
+  padding: 4px 9px 5px;
+  border: 2px solid var(--byeori);
+  background: rgba(5, 7, 7, 0.88);
+  color: var(--byeori);
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  transform: rotate(-4deg);
+  opacity: 0;
+  animation: show 0.2s steps(2, end) 1.25s forwards;
+}
+.hack-stamp:empty { display: none; }
+.hack[data-phase="out"] { animation: fadeout 0.4s ease-in forwards; }
+
+/* 해킹이 이어지는 동안: 벼리는 물러나고 낙서만 대화창 뒤에 깔려 있음 */
+.chat-log, .choices { position: relative; z-index: 1; }
+.hack[data-phase="stay"] { z-index: 0; background: none; pointer-events: none; }
+.hack[data-phase="stay"] .hack-paint { opacity: 0.4; }
+.hack[data-phase="stay"] .brush path,
+.hack[data-phase="stay"] .chalk path { animation: none; stroke-dashoffset: 0; }
+.hack[data-phase="stay"] .doodle { animation: none; opacity: 0.32; }
+.hack[data-phase="stay"] .hack-bust { animation: peek-out 0.3s ease-in forwards; }
+.hack[data-phase="stay"] .hack-plate,
+.hack[data-phase="stay"] .hack-stamp { display: none; }
+@keyframes peek-out {
+  from { transform: translateX(0) rotate(-3deg); }
+  to { transform: translateX(125%) rotate(6deg); }
+}
+/* 해킹 중 머리줄: 채널 이름 자리에 도장 글자 */
+.chat[data-hack] .chat-head { border-bottom-color: var(--byeori); }
+.chat[data-hack] .chat-en { color: var(--byeori); letter-spacing: 0.08em; }
+
+/* highlight_mission: 임무 바로 가기 강조 */
+.chat[data-mission] .mission { animation: mission 1.5s ease-in-out infinite; }
+.chat[data-mission] .mission span { animation: nudge 1.5s ease-in-out infinite; }
+@keyframes mission {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(var(--a), 0), 0 0 0 rgba(var(--a), 0); }
+  50% { box-shadow: 0 0 0 3px rgba(var(--a), 0.38), 0 0 24px rgba(var(--a), 0.65); }
+}
+@keyframes nudge { 50% { transform: translateX(5px); } }
+
+/* ══════════════ 준비 중 화면 (RITUAL 등) ══════════════ */
+.standby { min-height: 100vh; min-height: 100dvh; }
+.standby-body { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding: 24px 24px 96px; }
+.standby-no { font-family: var(--mono); font-size: 13px; color: var(--accent); }
+.standby-en { margin-top: 4px; font-family: var(--mono); font-size: 40px; font-weight: 700; line-height: 1.1; letter-spacing: 0.12em; }
+.standby-ko { margin-top: 6px; font-size: 16px; color: var(--dim); }
+.standby-st {
+  margin-top: 24px;
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  color: var(--dim);
+}
+.standby-st span { margin-left: 8px; font-family: var(--sans); letter-spacing: 0.04em; }
+
 /* '동작 줄이기'를 켠 폰: 흐르는 줄은 멈춘 줄로, 연출은 결과만 */
 @media (prefers-reduced-motion: reduce) {
   .fx::before,
@@ -660,8 +1010,13 @@ body[data-scan] .ring::before { animation: spin 18s linear infinite; }
   .ring::before,
   .boot[data-mode="boot"] .pass { animation: none; }
   .ring { display: none; }
-  .log li, .greet, .auth, .enter, .seal, .seal-wrap, .home {
+  .log li, .greet, .auth, .enter, .seal, .seal-wrap, .home,
+  .msg, .choice, .intro-bust, .intro-plate,
+  .hack .brush path, .hack .chalk path, .doodle, .hack-bust, .hack-plate {
     animation-duration: 0.01ms;
     animation-delay: 0s;
   }
+  .typing i, .chat[data-mission] .mission span { animation: none; }
+  .chat[data-mission] .mission { animation: none; box-shadow: 0 0 0 3px rgba(var(--a), 0.38); }
+  .hack[data-phase="stay"] .hack-bust { display: none; }
 }

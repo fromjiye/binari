@@ -1,0 +1,49 @@
+{
+  "_안내": [
+    "DECODER 메신저 대사 파일 (2026-11-26 지예 확인본). 문장만 바꿔 끼우면 되고, 코드는 건드리지 않아도 됩니다.",
+    "intro는 위에서 아래로 진행됩니다.",
+    "enter = 반신 누끼 + 이름표 등장 / msg = 말풍선 한 개 / choice = 선택지(고른 답의 reply가 이어서 나옴)",
+    "hack_start · hack_end = 벼리 해킹 낙서 시작 · 끝 / highlight_mission = '임무 바로 가기' 버튼 강조",
+    "{admin} 은 id가 있으면 '○○○ 관리자님', 없으면 '관리자님'으로 바뀝니다.",
+    "after_ritual = 굿판을 마치고 메신저로 돌아왔을 때 나오는 반응. 같은 식으로 after_sync 를 추가하면 동기화 테스트 뒤 반응이 됩니다.",
+    "프로필 · 반신 그림은 speakers의 이름표(ara, byeori)로 assets/decoder/ 에서 찾습니다."
+  ],
+  "speakers": {
+    "ara":    { "name": "아라", "en": "ARA",    "tag": "RESTORATION", "color": "#4E5CE4" },
+    "byeori": { "name": "벼리", "en": "BYEORI", "tag": "DISRUPTION",  "color": "#F26A1B" }
+  },
+  "intro": [
+    { "type": "enter", "who": "ara" },
+    { "type": "msg", "who": "ara", "text": "{admin}, 안녕하세요." },
+    { "type": "msg", "who": "ara", "text": "마고 OS가 보낸 동기화 신청서, 받으셨어요? 거기 응답한 게 저예요. 회로 시장 정화팀 디코더, 아라예요." },
+    { "type": "choice", "options": [
+      { "label": "응, 받았어", "reply": [ { "who": "ara", "text": "다행이다. 신호가 이 시스템 바깥에서 오고 있어서, 제대로 닿을지 조금 걱정했거든요." } ] },
+      { "label": "누구세요?", "reply": [ { "who": "ara", "text": "관리자님이랑 같이 굿을 할 사람이요. 마고 OS가 관리자님 주파수를 스캔했고, 거기에 제가 공명했어요." } ] },
+      { "label": "동기화가 뭐야?", "reply": [ { "who": "ara", "text": "관리자님 의식과 제 의식을 잇는 거예요. 연결되면 제가 보는 걸 관리자님도 볼 수 있어요." } ] }
+    ]},
+    { "type": "msg", "who": "ara", "text": "처음엔 낯설겠지만, 금방 익숙해질 거예요." },
+    { "type": "msg", "who": "ara", "text": "지금 회로 시장 한쪽에서 노이즈가 올라오고 있어요. 악귀예요." },
+    { "type": "msg", "who": "ara", "text": "그래도 지워야 할 에러는 아니에요. 한때는 누군가의 감정이었던, 슬픈 데이터예요." },
+    { "type": "choice", "options": [
+      { "label": "어떻게 하면 돼?", "reply": [ { "who": "ara", "text": "세 단계예요. 공명으로 주파수를 맞추고, 살풀이로 엉킨 걸 풀고, 정상화로 제자리에 돌려놔요." } ] },
+      { "label": "무섭지 않아?", "reply": [ { "who": "ara", "text": "조금요. 그래도 관리자님이랑 동기화돼 있으면 훨씬 덜 무서워요." } ] }
+    ]},
+    { "type": "hack_start", "who": "byeori", "stamp": "HACKED_BY_BYEORI" },
+    { "type": "msg", "who": "byeori", "text": "야야야 잠깐!! 아라 언니 설명 너무 길어" },
+    { "type": "msg", "who": "byeori", "text": "신입이지? 반가워~ 난 벼리. 이 채널 방금 내가 뚫었음 ★" },
+    { "type": "msg", "who": "byeori", "text": "굿판 점수 랭킹 있는 거 알지? 내 기록 깨면 인정해 줄게. 못 깨겠지만 ㅋ" },
+    { "type": "choice", "options": [
+      { "label": "도전 받아줄게", "reply": [ { "who": "byeori", "text": "오 패기 좋은데? 기대한다~" } ] },
+      { "label": "넌 누군데?", "reply": [ { "who": "byeori", "text": "말했잖아 벼리라고! 마고 OS가 제일 싫어하는 디코더 ㅋㅋ" } ] }
+    ]},
+    { "type": "msg", "who": "byeori", "text": "앗 관리국 감시 들어온다. 튄다~" },
+    { "type": "hack_end" },
+    { "type": "msg", "who": "ara", "text": "…벼리는 원래 저래요. 놀라셨죠 :)" },
+    { "type": "msg", "who": "ara", "text": "준비되면 굿판으로 와 주세요. 살풀이 단계에서 서두르지 마세요. 천천히, 들어주는 것도 정화의 일부예요." },
+    { "type": "highlight_mission" }
+  ],
+  "after_ritual": [
+    { "type": "msg", "who": "ara", "text": "수고했어요, {admin}. 방금 그 데이터… 이제 조금은 편해졌을 거예요." },
+    { "type": "msg", "who": "byeori", "text": "점수 봤음. 음… 나쁘지 않네? 내 기록엔 아직 멀었지만 ★" }
+  ]
+}
