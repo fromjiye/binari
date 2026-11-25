@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=10">
+<link rel="stylesheet" href="style.css?v=12">
 </head>
 <body data-role="admin">
 
@@ -220,7 +220,7 @@
     <!-- 키링을 태그했을 때: 회수 기록 해제 -->
     <div class="inv-unlock" id="inv-unlock" hidden aria-live="polite">
       <p class="inv-u-title">회수 기록 해제</p>
-      <div class="inv-u-pic">
+      <div class="inv-u-pic" id="inv-u-pic">
         <img class="inv-u-gray" id="inv-u-gray" alt="">
         <img class="inv-u-color" id="inv-u-color" alt="">
         <span class="inv-scan" id="inv-scan"></span>
@@ -318,7 +318,7 @@
       <p class="note" id="rs-note"></p>
       <div class="rs-actions">
         <button type="button" class="rs-btn" id="rs-retry">다시 도전</button>
-        <button type="button" class="rs-btn is-main" data-go="decoder">메신저로 돌아가기</button>
+        <button type="button" class="rs-btn is-main" id="rs-back" data-go="decoder">메신저로 돌아가기</button>
       </div>
     </div>
   </section>
@@ -330,7 +330,7 @@
 <script src="app.js?v=13"></script>
 <script src="sound.js?v=4"></script>
 <script src="decoder.js?v=4"></script>
-<script src="ritual.js?v=6"></script>
-<script src="inventory.js?v=3"></script>
+<script src="ritual.js?v=7"></script>
+<script src="inventory.js?v=4"></script>
 </body>
 </html>

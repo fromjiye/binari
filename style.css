@@ -1497,7 +1497,12 @@ body[data-scan] .ring::before { animation: spin 18s linear infinite; }
 }
 .inv-u-title { font-size: 20px; font-weight: 700; letter-spacing: 0.2em; color: var(--accent); }
 .inv-u-pic { position: relative; height: min(38vh, 300px); margin-top: 18px; border: 1px solid var(--line); background: #06090a; overflow: hidden; }
-.inv-u-pic img { position: absolute; inset: 0; width: 100%; height: 100%; padding: 6%; object-fit: contain; }
+.inv-u-pic img { position: absolute; left: 50%; top: 50%; max-width: 88%; max-height: 88%; transform: translate(-50%, -50%); }
+/* 바탕이 있는 그림(02 · 03 · 04): 가장자리를 페이드해서 네모 판이 보이지 않게 */
+img.is-flat {
+  -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 52%, transparent 96%);
+  mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 52%, transparent 96%);
+}
 .inv-scan { position: absolute; left: 0; right: 0; top: 0; height: 2px; margin-top: -1px; background: var(--accent); box-shadow: 0 0 14px 2px rgba(var(--a), 0.8); }
 .inv-unlock.is-done .inv-scan { display: none; }
 .inv-unlock.is-done .inv-u-pic { border-color: var(--accent); box-shadow: 0 0 24px rgba(var(--a), 0.4); }

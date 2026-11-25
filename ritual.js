@@ -37,6 +37,8 @@
     rootName: '만다라 프로토콜',
     localNote: '지금은 이 폰에 저장된 기록만 보여요',
     byeori: 'BYEORI ★ 기록',
+    back: '메신저로 돌아가기',
+    collect: '유실물 회수하기', // 굿판 첫 완료로 02번 연출이 대기 중일 때만 버튼 이름이 이것으로 바뀜
     dread: '대귀 출현 · DREAD',
     // 콤보 이정표 한마디 (at = 콤보 수)
     cheers: [
@@ -792,6 +794,8 @@
         localStorage.setItem('binari.relics.v1', JSON.stringify(relics));
       }
     } catch (e) {}
+    // 연출이 대기 중이면 '유실물 회수하기', 아니면(두 번째 판부터) 원래 이름
+    $('rs-back').textContent = relicPending() ? TEXT.collect : TEXT.back;
 
     // 메신저로 돌아가면 디코더가 반응 (벼리 기록을 넘겼는지 같이 알림)
     B.emit('ritual_done', { beat: run.score > BYEORI });

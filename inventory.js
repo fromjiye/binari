@@ -46,11 +46,12 @@
   };
 
   // via: tag = 실물 키링 태그 / 그 밖은 회수 경로가 되는 앱
+  // flat: 바탕이 있는 그림(설정집 그림) → 가장자리를 페이드해서 사이트 바탕에 섞음. 투명 누끼(01 · 05 · 06)는 그대로
   var ITEMS = [
     { no: '01', key: 'r01',   name: '붉은 댕기',                      color: 'blue',   emo: '슬픔·그리움', note: '',                    via: 'tag' },
-    { no: '02', key: 'voice', name: '보내지 못한 음성 메시지',        color: 'blue',   emo: '슬픔·그리움', note: '재생 불가',           via: 'ritual' },
-    { no: '03', key: 'r03',   name: '찢어진 업로드 동의서',           color: 'red',    emo: '분노·억울함', note: '서명란 손상',         via: 'sync' },
-    { no: '04', key: 'r04',   name: '반쯤 깨진 가족사진',             color: 'yellow', emo: '욕망·집착',   note: '열화 진행',           via: 'archive' },
+    { no: '02', key: 'voice', name: '보내지 못한 음성 메시지',        color: 'blue',   emo: '슬픔·그리움', note: '재생 불가',           via: 'ritual',  flat: true },
+    { no: '03', key: 'r03',   name: '찢어진 업로드 동의서',           color: 'red',    emo: '분노·억울함', note: '서명란 손상',         via: 'sync',    flat: true },
+    { no: '04', key: 'r04',   name: '반쯤 깨진 가족사진',             color: 'yellow', emo: '욕망·집착',   note: '열화 진행',           via: 'archive', flat: true },
     { no: '05', key: 'r05',   name: '주인 잃은 노리개',               color: 'yellow', emo: '욕망·집착',   note: '원 소유자 기록 없음', via: 'tag' },
     { no: '06', key: 'r06',   name: '마지막 로그인이 찍힌 개인 단말', sub: '2199.03.██', color: 'white', emo: '공허·체념', note: '접속 기록 종료', via: 'tag' }
   ];
@@ -106,6 +107,7 @@
       var pic = el('span', 'inv-pic');
       var im = document.createElement('img');
       im.src = img(item); im.alt = ''; im.loading = 'lazy';
+      if (item.flat) im.className = 'is-flat';
       pic.appendChild(im);
       cell.appendChild(pic);
 
@@ -145,6 +147,7 @@
     var got = has(item);
     detail.className = 'inv-detail' + (got ? ' is-got' : ' is-locked');
     $('inv-d-img').src = img(item);
+    $('inv-d-img').className = item.flat ? 'is-flat' : '';
     $('inv-d-no').textContent = 'RELIC ' + item.no;
     $('inv-d-name').textContent = item.name;
     $('inv-d-sub').textContent = item.sub || '';
@@ -192,9 +195,13 @@
     var pct = Math.round(p * 100);
     $('inv-bar-fill').style.transform = 'scaleX(' + p + ')';
     $('inv-u-pct').textContent = pct + '%';
-    $('inv-u-color').style.clipPath = 'inset(0 0 ' + (100 - pct) + '% 0)';
-    $('inv-u-color').style.webkitClipPath = 'inset(0 0 ' + (100 - pct) + '% 0)';
     $('inv-scan').style.top = pct + '%';
+    // 스캔 선 위쪽만 색이 드러나게: 그림 상자가 바깥 상자보다 작아서 선의 위치를 px 로 맞춘다
+    var box = $('inv-u-pic').getBoundingClientRect(), im = $('inv-u-color').getBoundingClientRect();
+    var cut = im.height ? Math.max(0, Math.min(im.height, im.bottom - (box.top + box.height * p))) : 0;
+    var clip = p >= 1 ? 'none' : 'inset(0 0 ' + (im.height ? cut + 'px' : (100 - pct) + '%') + ' 0)';
+    $('inv-u-color').style.clipPath = clip;
+    $('inv-u-color').style.webkitClipPath = clip;
   }
   function setUnlockDone(done) {
     unlockEl.classList.toggle('is-done', done);
@@ -208,6 +215,8 @@
     $('inv-u-name').textContent = item.name;
     $('inv-u-gray').src = img(item);
     $('inv-u-color').src = img(item);
+    $('inv-u-gray').className = 'inv-u-gray' + (item.flat ? ' is-flat' : '');
+    $('inv-u-color').className = 'inv-u-color' + (item.flat ? ' is-flat' : '');
     setUnlockDone(false);
     setProgress(0);
     unlockEl.hidden = false;
