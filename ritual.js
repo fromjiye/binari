@@ -55,6 +55,11 @@
     spawn: [1150, 620],   // 악귀가 나오는 간격 (처음 → 끝, ms)
     life: [2700, 1900],   // 악귀가 머무는 시간 (처음 → 끝, ms)
     base: 100,            // 정답 한 번의 기본 점수
+    // 반응 속도: 정답 점수 = base × 속도 계수 × 콤보 배율
+    // 속도 계수는 악귀의 대기 줄이 남은 비율에 따라 speedMax(바로 누름) → speedMin(사라지기 직전), 선형
+    speedMax: 1.0,
+    speedMin: 0.3,
+    fastAt: 0.8,          // 대기 줄이 이 비율 이상 남았을 때 맞히면 "FAST"
     sync: 7,              // 정답 한 번에 오르는 싱크로율 (%)
     rootBase: 1500, rootEach: 300, // ROOT ACCESS: 기본 + 정화한 악귀 하나당
     blackBonus: 800,      // 흑귀를 건드리지 않고 흘려보냈을 때
@@ -454,10 +459,12 @@
     if (target) { // 정화
       target.state = 'pure'; target.end = now;
       nm.combo += 1; nm.maxCombo = Math.max(nm.maxCombo, nm.combo);
-      var gain = Math.round(NORM.base * multOf(nm.combo));
+      var left = Math.max(0, Math.min(1, 1 - (now - target.born) / target.life)); // 대기 줄이 남은 비율
+      var speed = Math.max(NORM.speedMin, NORM.speedMin + (NORM.speedMax - NORM.speedMin) * left);
+      var gain = Math.round(NORM.base * speed * multOf(nm.combo));
       nm.score += gain;
-      nm.sync = Math.min(100, nm.sync + NORM.sync);
-      pop('+' + gain, 'is-good');
+      nm.sync = Math.min(100, nm.sync + NORM.sync); // 싱크로율은 속도와 상관없이 고정
+      pop('+' + gain + (left >= NORM.fastAt ? ' FAST' : ''), 'is-good');
       sfx('hit', nm.combo);
       cheer(nm.combo);
     } else if (black) { // 흑귀: 맞는 버튼이 없다. 점수 변화 없음
@@ -869,7 +876,7 @@
         ff.c.clearRect(0, 0, ff.w, ff.h);
         nm.ghosts.forEach(function (g) { drawGhost(ff.c, g, n2); });
       });
-      if (name === 'norm') pop('+150', 'is-good');
+      if (name === 'norm') pop('+143 FAST', 'is-good');
       if (name === 'root') setTimeout(function () { rootAccess(); }, 60);
       return;
     }

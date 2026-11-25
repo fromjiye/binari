@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=7">
+<link rel="stylesheet" href="style.css?v=8">
 </head>
 <body data-role="admin">
 
@@ -34,6 +34,15 @@
 <main class="frame">
   <div class="fx" aria-hidden="true"></div>
   <div class="hud" aria-hidden="true"></div>
+
+  <!-- 첫 접속: 탭 화면 (관리자 카드 뒷면 문구와 같음) -->
+  <section class="screen gate" id="gate" hidden>
+    <button type="button" class="gate-btn" id="gate-btn">
+      <svg class="gate-seal" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-art"/></svg>
+      <span class="gate-en">TAP TO ACCESS</span>
+      <span class="gate-ko">화면을 탭해 접속</span>
+    </button>
+  </section>
 
   <!-- 부팅 · 접속 승인 -->
   <section class="screen boot" id="boot" hidden>
@@ -266,9 +275,9 @@
 
 <noscript><p class="noscript">MAGO OS 관리자 콘솔 — 접속 준비 중입니다.</p></noscript>
 <script src="config.js?v=1"></script>
-<script src="app.js?v=7"></script>
-<script src="sound.js?v=2"></script>
+<script src="app.js?v=8"></script>
+<script src="sound.js?v=3"></script>
 <script src="decoder.js?v=4"></script>
-<script src="ritual.js?v=3"></script>
+<script src="ritual.js?v=4"></script>
 </body>
 </html>

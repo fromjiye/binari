@@ -18,6 +18,8 @@
   function savePref() { try { localStorage.setItem(KEY, JSON.stringify(pref)); } catch (e) {} }
 
   var ctx = null, master = null, noiseBuf = null;
+  var out = null;     // 소리를 보낼 곳을 잠깐 바꿀 때 (부팅음)
+  var bootBus = null; // 첫 접속 부팅음만 지나가는 길: 건너뛰면 이 길만 닫는다
 
   function ensure() {
     if (!ctx) {
@@ -44,7 +46,7 @@
     g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(o.g || 0.05, t + a);
     g.gain.exponentialRampToValueAtTime(0.0001, t + a + o.dur);
-    osc.connect(g); g.connect(master);
+    osc.connect(g); g.connect(out || master);
     osc.start(t); osc.stop(t + a + o.dur + 0.03);
   }
 
@@ -64,7 +66,7 @@
     g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(o.g || 0.05, t + 0.006);
     g.gain.exponentialRampToValueAtTime(0.0001, t + o.dur);
-    src.connect(f); f.connect(g); g.connect(master);
+    src.connect(f); f.connect(g); g.connect(out || master);
     src.start(t); src.stop(t + o.dur + 0.03);
   }
 
@@ -77,6 +79,11 @@
     seal: function () {                                                                       // ACCESS SEAL "쿵"
       tone({ f: 124, f2: 52, dur: 0.24, g: 0.2 });
       noise({ type: 'lowpass', f: 420, dur: 0.09, g: 0.07 });
+    },
+    power: function () {                                                                      // 첫 접속 시작음: 짧게 켜지는 저음
+      tone({ f: 55, f2: 110, dur: 0.42, g: 0.13, attack: 0.04 });
+      tone({ f: 220, dur: 0.3, g: 0.025, attack: 0.12, at: 0.12 });
+      noise({ type: 'lowpass', f: 900, dur: 0.05, g: 0.025 });
     },
     tap: function () { tone({ f: 620, type: 'triangle', dur: 0.045, g: 0.045 }); },            // 버튼
     choice: function () { tone({ f: 523, type: 'triangle', dur: 0.05, g: 0.05 }); },           // 선택지
@@ -151,6 +158,28 @@
     try { SFX[name](arg); } catch (e) {}
   }
 
+  // ── 첫 접속 부팅음: 스피커 설정과 상관없이, 탭 화면을 누른 그 한 번만 ──
+  // unlock 은 반드시 탭(사용자 동작) 안에서 불러야 브라우저가 소리를 열어 준다
+  function bootUnlock() {
+    if (!ensure()) return false;
+    if (!bootBus) { bootBus = ctx.createGain(); bootBus.connect(master); }
+    bootBus.gain.cancelScheduledValues(ctx.currentTime);
+    bootBus.gain.setValueAtTime(1, ctx.currentTime);
+    return true;
+  }
+  function bootPlay(name) {
+    if (!ctx || !bootBus || !SFX[name]) return;
+    out = bootBus;
+    try { SFX[name](); } catch (e) {}
+    out = null;
+  }
+  // 건너뛰기: 울리고 있던 부팅음을 바로 줄여서 멈춤
+  function bootStop() {
+    if (!ctx || !bootBus) return;
+    bootBus.gain.cancelScheduledValues(ctx.currentTime);
+    bootBus.gain.setTargetAtTime(0.0001, ctx.currentTime, 0.02);
+  }
+
   // ── BGM 자리: config.js 의 bgm 에 파일 주소를 넣으면 버튼이 나타난다 ──
   var bgmEl = null;
   function bgmApply() {
@@ -209,6 +238,7 @@
 
   B.sound = {
     play: play,
+    boot: { unlock: bootUnlock, play: bootPlay, stop: bootStop },
     hum: humApi,
     isOn: function () { return pref.sfx; }
   };

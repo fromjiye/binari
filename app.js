@@ -323,12 +323,36 @@
 
   // 접속 승인 → 콘솔 열기 다음 첫 화면은 디코더 메신저 (홈은 메신저에서 나가면 보임)
   function finishBoot() {
+    // 건너뛰면 울리던 부팅음도 같이 멈춘다
+    if (bootSound && window.BINARI && window.BINARI.sound) window.BINARI.sound.boot.stop();
+    bootSound = false;
     sfx('tap');
     if (stampTimer) { clearTimeout(stampTimer); stampTimer = null; }
     setScanning(false);
     remember();
     booting = false;
     go('decoder', true);
+  }
+
+  // 첫 접속에만: 부팅 앞의 탭 화면. 이 탭에서 소리를 열고 부팅음을 낸다 (스피커 설정과 상관없이 이 한 번만)
+  var bootSound = false;
+  function bsfx(name) {
+    if (bootSound && window.BINARI && window.BINARI.sound) window.BINARI.sound.boot.play(name);
+    else sfx(name);
+  }
+  function showGate() {
+    var gate = $('gate');
+    booting = true;
+    document.body.setAttribute('data-screen', 'gate');
+    gate.hidden = false;
+    $('gate-btn').addEventListener('click', function () {
+      if (gate.hidden) return;
+      gate.hidden = true;
+      var snd = window.BINARI && window.BINARI.sound;
+      bootSound = !!(snd && snd.boot.unlock());
+      bsfx('power'); // 시작음
+      showBoot('boot');
+    });
   }
 
   function showBoot(kind) {
@@ -348,14 +372,15 @@
 
     // 부팅 로그가 한 줄씩 뜰 때 틱
     if (kind === 'boot' && !reduced) {
-      [150, 450, 750, 1050].forEach(function (ms) { setTimeout(function () { if (booting) sfx('tick'); }, ms); });
+      [150, 450, 750, 1050].forEach(function (ms) { setTimeout(function () { if (booting) bsfx('tick'); }, ms); });
     }
 
     // 도장이 찍히는 순간: 스캔을 끝내고 이 id를 기억 (그 전에 닫으면 다음에 다시 보여 줌)
     stampTimer = setTimeout(function () {
       stampTimer = null;
       setScanning(false);
-      sfx('seal');
+      bsfx('seal');
+      bootSound = false; // 부팅음은 여기까지. 이 뒤로는 스피커 설정을 따른다
       remember();
     }, kind === 'boot' ? STAMP_AT : 400);
 
@@ -384,8 +409,10 @@
   if (mode === 'home') {
     // relic로 처음 들어온 경우에는 기억하지 않는다 (다음 정식 접속 때 부팅을 보여 주기 위해)
     render();
+  } else if (mode === 'boot') {
+    showGate(); // 첫 접속: 탭 화면 → 부팅
   } else {
-    showBoot(mode);
+    showBoot(mode); // 다른 id로 다시 옴: 탭 화면 없이 짧은 인사
   }
 
   if (inApp) {

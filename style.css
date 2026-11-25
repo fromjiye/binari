@@ -187,6 +187,31 @@ body[data-scan] .fx::after { opacity: 1; transition-duration: 0.15s; }
 }
 .inapp :focus-visible { outline-color: var(--ink); }
 
+/* ══════════════ 첫 접속 탭 화면 ══════════════ */
+.gate { z-index: 3; display: flex; min-height: 100vh; min-height: 100dvh; padding: 0; background: #050707; }
+.gate-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 0 24px 6vh;
+}
+.gate-seal { width: 108px; height: 108px; margin-bottom: 26px; color: var(--accent); transform: rotate(-8deg); }
+.gate-en {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+  animation: gate-pulse 1.8s ease-in-out infinite;
+}
+.gate-ko { font-size: 14px; letter-spacing: 0.12em; color: var(--dim); }
+.gate-btn:focus-visible { outline-offset: -8px; }
+@keyframes gate-pulse { 50% { opacity: 0.4; } }
+
 /* ══════════════ 부팅 · 접속 승인 ══════════════ */
 .boot {
   display: flex;
@@ -1354,7 +1379,7 @@ body[data-scan] .ring::before { animation: spin 18s linear infinite; }
     animation-duration: 0.01ms;
     animation-delay: 0s;
   }
-  .typing i, .chat[data-mission] .mission span { animation: none; }
+  .typing i, .chat[data-mission] .mission span, .gate-en { animation: none; }
   .nm-root { animation: none; box-shadow: 0 0 0 3px rgba(var(--a), 0.38); }
   .nm-cheer.go, .nm-alert.go { animation: none; opacity: 1; }
   .rs-secret.go { animation: none; opacity: 0.9; }
