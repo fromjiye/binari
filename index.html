@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="style.css?v=5">
 </head>
 <body data-role="admin">
 
@@ -38,6 +38,10 @@
   <!-- 부팅 · 접속 승인 -->
   <section class="screen boot" id="boot" hidden>
     <button type="button" class="skip" id="skip">건너뛰기 <span>SKIP</span></button>
+    <span class="snd snd-boot">
+        <button type="button" class="snd-btn" data-bgm hidden aria-pressed="false"><span aria-hidden="true">♪</span></button>
+        <button type="button" class="snd-btn" data-sound aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="s" d="M4 9h4l5-4v14l-5-4H4z"/><path class="w" d="M16 9.5c1.3 1.3 1.3 3.7 0 5M18.6 7c2.7 2.7 2.7 7.3 0 10"/><path class="x" d="M16.5 9.5l5 5m0-5l-5 5"/></svg></button>
+      </span>
 
     <p class="boot-head"><span>MAGO OS <i>//</i> ADMIN CONSOLE</span></p>
     <ol class="log" id="log" aria-hidden="true"></ol>
@@ -93,7 +97,7 @@
       <h2 class="sec-head">MODULES <span>준비 중</span></h2>
       <ul>
         <li class="is-open"><button type="button" class="m-link" data-go="decoder" aria-label="DECODER 디코더 메신저 열기"></button><span class="m-no">01</span><span class="m-en">DECODER</span><span class="m-ko">디코더 메신저</span><span class="m-st">OPEN</span></li>
-        <li><span class="m-no">02</span><span class="m-en">RITUAL</span><span class="m-ko">디지털 굿판</span><span class="m-st">STANDBY</span></li>
+        <li class="is-open"><button type="button" class="m-link" data-go="ritual" aria-label="RITUAL 디지털 굿판 열기"></button><span class="m-no">02</span><span class="m-en">RITUAL</span><span class="m-ko">디지털 굿판</span><span class="m-st">OPEN</span></li>
         <li><span class="m-no">03</span><span class="m-en">INVENTORY</span><span class="m-ko">유품 인벤토리</span><span class="m-st">STANDBY</span></li>
         <li><span class="m-no">04</span><span class="m-en">LOG</span><span class="m-ko">접속 기록</span><span class="m-st">STANDBY</span></li>
       </ul>
@@ -102,6 +106,10 @@
 
     <footer class="foot">
       <span class="wordmark" role="img" aria-label="BINARI"></span>
+      <span class="snd snd-home">
+        <button type="button" class="snd-btn" data-bgm hidden aria-pressed="false"><span aria-hidden="true">♪</span></button>
+        <button type="button" class="snd-btn" data-sound aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="s" d="M4 9h4l5-4v14l-5-4H4z"/><path class="w" d="M16 9.5c1.3 1.3 1.3 3.7 0 5M18.6 7c2.7 2.7 2.7 7.3 0 10"/><path class="x" d="M16.5 9.5l5 5m0-5l-5 5"/></svg></button>
+      </span>
     </footer>
   </section>
 
@@ -114,6 +122,10 @@
         <p class="chat-ko">디코더 메신저</p>
       </div>
       <span class="chat-tag" aria-hidden="true"></span>
+      <span class="snd">
+        <button type="button" class="snd-btn" data-bgm hidden aria-pressed="false"><span aria-hidden="true">♪</span></button>
+        <button type="button" class="snd-btn" data-sound aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="s" d="M4 9h4l5-4v14l-5-4H4z"/><path class="w" d="M16 9.5c1.3 1.3 1.3 3.7 0 5M18.6 7c2.7 2.7 2.7 7.3 0 10"/><path class="x" d="M16.5 9.5l5 5m0-5l-5 5"/></svg></button>
+      </span>
     </header>
 
     <div class="chat-log" id="chat-log" role="log" aria-live="polite"></div>
@@ -159,28 +171,101 @@
     </div>
   </section>
 
-  <!-- RITUAL — 디지털 굿판 (준비 중) -->
-  <section class="screen standby" id="ritual" hidden>
+  <!-- RITUAL — 디지털 굿판 -->
+  <section class="screen ritual" id="ritual" hidden>
     <header class="chat-head">
       <button type="button" class="back" data-go="decoder" aria-label="디코더 메신저로 돌아가기"><span aria-hidden="true">‹</span> 디코더</button>
       <div class="chat-title">
         <p class="chat-en">RITUAL</p>
         <p class="chat-ko">디지털 굿판</p>
       </div>
+      <p class="rt-step" id="rt-step"></p>
+      <span class="snd">
+        <button type="button" class="snd-btn" data-bgm hidden aria-pressed="false"><span aria-hidden="true">♪</span></button>
+        <button type="button" class="snd-btn" data-sound aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="s" d="M4 9h4l5-4v14l-5-4H4z"/><path class="w" d="M16 9.5c1.3 1.3 1.3 3.7 0 5M18.6 7c2.7 2.7 2.7 7.3 0 10"/><path class="x" d="M16.5 9.5l5 5m0-5l-5 5"/></svg></button>
+      </span>
     </header>
-    <div class="standby-body">
-      <p class="standby-no">02</p>
-      <h1 class="standby-en" tabindex="-1">RITUAL</h1>
-      <p class="standby-ko">디지털 굿판</p>
-      <p class="standby-st">STANDBY <span>준비 중</span></p>
-      <p class="note">모듈을 준비하고 있습니다. 곧 열립니다.</p>
+
+    <!-- 단계 표시 -->
+    <div class="rt-view rt-card" id="rt-card" hidden>
+      <p class="rt-card-no" id="rt-card-no"></p>
+      <h1 class="rt-card-ko" id="rt-card-ko"></h1>
+      <p class="rt-card-en" id="rt-card-en"></p>
+    </div>
+
+    <!-- 01 공명 -->
+    <div class="rt-view rt-res" id="rt-res" hidden>
+      <canvas class="res-wave" id="res-wave"></canvas>
+      <p class="res-judge" id="res-judge" aria-live="polite"></p>
+      <div class="res-bar"><span class="res-zone"></span><span class="res-center"></span><span class="res-needle" id="res-needle"></span></div>
+      <div class="res-scale"><span>432</span><b>444Hz</b><span>456</span></div>
+      <ol class="res-dots" id="res-dots" aria-hidden="true"><li></li><li></li><li></li></ol>
+      <p class="rt-hint" id="res-hint"></p>
+    </div>
+
+    <!-- 02 살풀이 -->
+    <div class="rt-view rt-sal" id="rt-sal" hidden>
+      <div class="rt-timer"><i id="sal-time"></i></div>
+      <div class="sal-box">
+        <svg class="sal-svg" id="sal-svg" viewBox="0 0 300 300" focusable="false"></svg>
+        <p class="sal-label" id="sal-label" aria-live="polite"></p>
+      </div>
+      <p class="rt-hint" id="sal-hint"></p>
+    </div>
+
+    <!-- 03 정상화 -->
+    <div class="rt-view rt-norm" id="rt-norm" hidden>
+      <div class="rt-timer"><i id="nm-time"></i></div>
+      <div class="nm-hud">
+        <p class="nm-stat"><span>SCORE</span><b id="nm-score">0</b></p>
+        <p class="nm-stat nm-combo"><span>COMBO</span><b id="nm-combo-n">0</b><i id="nm-mult">x1.0</i></p>
+      </div>
+      <div class="nm-syncrow"><span>SYNC</span><div class="nm-sync-bar"><i id="nm-sync-fill"></i></div><b id="nm-sync">0%</b></div>
+      <div class="nm-field">
+        <canvas id="nm-canvas"></canvas>
+        <p class="nm-pop" id="nm-pop" aria-live="polite"></p>
+        <div class="nm-root-fx" id="nm-root-fx" hidden aria-hidden="true">
+          <span class="mandala m1"></span><span class="mandala m2"></span><span class="mandala m3"></span><span class="mandala m4"></span>
+          <p class="nm-root-title"><b>ROOT ACCESS</b><span id="nm-root-name"></span></p>
+        </div>
+        <p class="rt-hint" id="nm-hint"></p>
+      </div>
+      <button type="button" class="nm-root" id="nm-root" hidden>ROOT ACCESS</button>
+      <div class="nm-keys" id="nm-keys"></div>
+    </div>
+
+    <!-- 결과 · 랭킹 -->
+    <div class="rt-view rt-result" id="rt-result" hidden>
+      <p class="rs-head">RESULT <span>결과</span></p>
+      <p class="rs-score"><b id="rs-score">0</b></p>
+      <dl class="rs-stats">
+        <div><dt>PERFECT</dt><dd id="rs-perfect"></dd></div>
+        <div><dt>최대 콤보</dt><dd id="rs-combo"></dd></div>
+        <div><dt>루트 권한 개방</dt><dd id="rs-root"></dd></div>
+      </dl>
+      <p class="rs-id">기록 번호 <b id="rs-id"></b></p>
+      <form class="rs-form" id="rs-form">
+        <input type="text" id="rs-name" maxlength="10" placeholder="닉네임" aria-label="닉네임" autocomplete="off" autocapitalize="off" enterkeyhint="done">
+        <button type="submit">랭킹 등록</button>
+      </form>
+      <p class="rs-done" id="rs-done" hidden>등록 완료</p>
+      <h2 class="sec-head">RANKING <span>랭킹</span></h2>
+      <ol class="rs-rank" id="rs-rank"></ol>
+      <p class="note" id="rs-note"></p>
+      <div class="rs-actions">
+        <button type="button" class="rs-btn" id="rs-retry">다시 도전</button>
+        <button type="button" class="rs-btn is-main" data-go="decoder">메신저로 돌아가기</button>
+      </div>
     </div>
   </section>
 
 </main>
 
 <noscript><p class="noscript">MAGO OS 관리자 콘솔 — 접속 준비 중입니다.</p></noscript>
-<script src="app.js?v=5"></script>
-<script src="decoder.js?v=3"></script>
+<script src="config.js?v=1"></script>
+<script src="app.js?v=6"></script>
+<script src="sound.js?v=1"></script>
+<script src="decoder.js?v=4"></script>
+<script src="ritual.js?v=1"></script>
 </body>
 </html>

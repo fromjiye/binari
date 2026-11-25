@@ -96,6 +96,7 @@
       localStorage.removeItem(KEY);
       localStorage.removeItem(KEY_EVENTS);
       localStorage.removeItem(KEY_DECODER);
+      localStorage.removeItem('binari.relics.v1'); // 유품 획득 기록 (랭킹 기록과 소리 설정은 지우지 않음)
     } catch (e) {}
   }
 
@@ -107,12 +108,16 @@
   function writeEvents(list) {
     try { localStorage.setItem(KEY_EVENTS, JSON.stringify(list)); } catch (e) {}
   }
-  function emit(name) {
+  function emit(name, info) {
     if (!/^[a-z_]{1,24}$/.test(String(name))) return;
     var list = readEvents();
-    list.push({ e: String(name), seen: false, at: Date.now() });
-    writeEvents(list);
+    var ev = { e: String(name), seen: false, at: Date.now() };
+    if (info && info.beat) ev.beat = true; // 굿판에서 벼리 기록을 넘김
+    list.push(ev);
+    writeEvents(list.slice(-20));
   }
+  // 효과음 (sound.js 가 준비되어 있고 켜져 있을 때만 남)
+  function sfx(name) { if (window.BINARI && window.BINARI.sound) window.BINARI.sound.play(name); }
 
   // ?id=7, ?id=07 모두 '07'. 명단에 없으면 null (그냥 "관리자"로 진행).
   function normalizeId(raw) {
@@ -305,7 +310,7 @@
   window.addEventListener('hashchange', render);
   document.addEventListener('click', function (ev) {
     var t = ev.target && ev.target.closest ? ev.target.closest('[data-go]') : null;
-    if (t) go(t.getAttribute('data-go'));
+    if (t) { sfx('tap'); go(t.getAttribute('data-go')); }
   });
 
   function remember() { save(activeId); }
@@ -318,6 +323,7 @@
 
   // 접속 승인 → 콘솔 열기 다음 첫 화면은 디코더 메신저 (홈은 메신저에서 나가면 보임)
   function finishBoot() {
+    sfx('tap');
     if (stampTimer) { clearTimeout(stampTimer); stampTimer = null; }
     setScanning(false);
     remember();
@@ -340,10 +346,16 @@
 
     if (kind === 'boot' && !reduced) setScanning(true);
 
+    // 부팅 로그가 한 줄씩 뜰 때 틱
+    if (kind === 'boot' && !reduced) {
+      [150, 450, 750, 1050].forEach(function (ms) { setTimeout(function () { if (booting) sfx('tick'); }, ms); });
+    }
+
     // 도장이 찍히는 순간: 스캔을 끝내고 이 id를 기억 (그 전에 닫으면 다음에 다시 보여 줌)
     stampTimer = setTimeout(function () {
       stampTimer = null;
       setScanning(false);
+      sfx('seal');
       remember();
     }, kind === 'boot' ? STAMP_AT : 400);
 
@@ -364,7 +376,7 @@
   };
 
   // 테스트용: ?event=ritual_done 처럼 붙이면 그 모듈을 마친 것으로 기록
-  if (params.get('event')) emit(params.get('event'));
+  if (params.get('event')) emit(params.get('event'), { beat: params.has('beat') });
 
   fillCard();
   fillHome();

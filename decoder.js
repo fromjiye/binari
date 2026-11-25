@@ -8,13 +8,14 @@
   var B = window.BINARI;
   if (!B) return;
 
-  var DATA_URL = 'data/decoder.json?v=2';
+  var DATA_URL = 'data/decoder.json?v=3';
   var KEY = B.keys.decoder;
   var ASSET = 'assets/decoder/';
 
   // 캡처 · 점검용: hold 를 켜면 등장 · 해킹 연출이 저절로 넘어가지 않고 탭할 때까지 머문다
   var api = B.decoder = { hold: false };
 
+  function sfx(name) { if (B.sound) B.sound.play(name); }
   function $(id) { return document.getElementById(id); }
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -38,7 +39,7 @@
   // ── 진행 저장 (그 폰의 브라우저에만) ──
   // pos: 다음에 볼 줄 / queue: 아직 안 보여 준 말풍선 / log: 이미 보여 준 것
   // hack: 지금 해킹 중인지(도장 글자) / hacked: 벼리가 다녀갔는지 / mission: 버튼 강조
-  function fresh() { return { v: 2, pos: 0, queue: [], log: [], hack: null, hacked: false, mission: false, done: false }; }
+  function fresh() { return { v: 2, pos: 0, queue: [], log: [], hack: null, hacked: false, mission: false, done: false, reacted: {} }; }
   function load() {
     try {
       var s = JSON.parse(localStorage.getItem(KEY));
@@ -98,6 +99,7 @@
     }
     row.appendChild(el('p', 'bubble', fill(text)));
     if (instant) row.className += ' instant';
+    else sfx('msg');
     logEl.appendChild(row);
     lastWho = who;
     scrollDown();
@@ -169,6 +171,7 @@
     scrollDown();
   }
   function pick(opt) {
+    sfx('choice');
     choicesEl.textContent = '';
     addMe(opt.label);
     state.log.push({ me: true, text: opt.label });
@@ -308,6 +311,7 @@
   }
   function playHack(who, stamp) {
     setupHack(who, stamp);
+    sfx('hack');
     hideTyping();
     choicesEl.textContent = '';
     return present(hackEl, 3000).then(function () { hackEl.setAttribute('data-phase', 'stay'); });
@@ -319,16 +323,32 @@
   }
 
   // ── 다른 모듈을 마치고 돌아왔을 때: ritual_done → after_ritual, sync_done → after_sync … ──
+  // 같은 반응은 한 번만. 굿판에서 벼리 기록을 넘긴 사람은 벼리 줄만 after_ritual_beat 의 것으로 바뀐다
+  // (이미 반응을 본 뒤에 처음으로 기록을 넘기면, 벼리의 그 한 줄만 따로 나온다)
   function queueReactions() {
     var list = B.readEvents(), changed = false;
+    if (!state.reacted) state.reacted = {};
     list.forEach(function (ev) {
       if (ev.seen) return;
       ev.seen = true; changed = true;
-      var lines = data['after_' + String(ev.e).replace(/_done$/, '')];
-      if (!Array.isArray(lines)) return;
-      lines.forEach(function (n) {
-        if (n && n.type === 'msg' && n.text) state.queue.push({ who: n.who || 'ara', text: n.text });
-      });
+      var base = 'after_' + String(ev.e).replace(/_done$/, '');
+      var lines = Array.isArray(data[base]) ? data[base] : null;
+      var beat = ev.beat && Array.isArray(data[base + '_beat']) ? data[base + '_beat'] : null;
+      var out = [];
+      if (lines && !state.reacted[base]) {
+        lines.forEach(function (n) {
+          if (!n || n.type !== 'msg' || !n.text) return;
+          var swap = null;
+          if (beat) beat.forEach(function (b2) { if (b2 && b2.who === n.who) swap = b2; });
+          out.push(swap || n);
+        });
+        state.reacted[base] = true;
+        if (beat) state.reacted[base + '_beat'] = true;
+      } else if (beat && !state.reacted[base + '_beat']) {
+        out = beat.filter(function (n) { return n && n.type === 'msg' && n.text; });
+        state.reacted[base + '_beat'] = true;
+      }
+      out.forEach(function (n) { state.queue.push({ who: n.who || 'ara', text: n.text }); });
     });
     if (changed) { B.writeEvents(list); save(); }
   }
