@@ -33,7 +33,7 @@
   // 전체 폭 30mm · 높이 4.1mm 안에서 그리고 화면에서는 같은 비율로 늘린다.
   var BARCODE = {
     '00': 'a2a2c2a2a2b2a1c2c2a1a2c2a2a1a2a2c2c2c2c1b1a1c1b2c2b2c2b2c2a2a2a2b2a2a2b2a1c2c1b1c1a2c2a1a2b2b2a1b1a1a1c2b1a2',
-    '01': 'a2b2a2a2a2c2a2c1b1a1c2b1c2a2c2a1c2b1a2b2b2c1c1c2c1c1a2a2b1b2a1c1b1a2b2c1c2b1a1a1b2c1c2a2a1c1a1b2c1a2b2a1b2b1',
+    '01': 'a2b2a2a2a2c2a2c1b1a1c2b1c2a2c2a1c2b1a2b2b2c1c1c2c1c1a2a2b1b2a1c1b1a2b2c1c2b1a1a1b2c1c2a2a1c1a1b2c1a2b2a1b2b1b2',
     '02': 'a2b1a2b2c2a2a2c2a2a1a2a2c2a2a2c2c2a1a2c2a2c2c2a1b1a2a2b2a2c2b2c2c2a2a2a2a2b2a2a2a2a2c2b2a1b2a2a1c1a2c2a1a1c2a1',
     '03': 'c2a2a2a2c2b2a2a1a2a1a1a2b1c2c1a1b1a2c2b1c2a2b1c1a2b1c2a2a2c2a2a2c2a2c2c2c2a1c1b2b1a2a2a1c1a2c1c2b1a2a2b2a2a2b2',
     '04': 'a1a2b1a1a1a1a2b2a1b2b2a2b2a2c2a2a2a1a2a1b2c2a2a1a2c2c2a1a1a1c1a2a1c1a1a1a2a1a2c2c2a2c2a2a2c2a2a2a1c2a1a2a2a2b1a2a2a2a1c2',
