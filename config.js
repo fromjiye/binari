@@ -29,8 +29,8 @@ window.BINARI_CONFIG = {
   //  maxName · maxMessage : 글자 수 제한. Supabase 표의 제한과 같은 값이라, 늘리려면 표(SQL)도 같이 고쳐야 한다
   //  cooldownSeconds : 한 번 쓴 뒤 다시 쓸 수 있을 때까지 걸리는 시간(초)
   guestbook: {
-    supabaseUrl: '',
-    supabaseKey: '',
+    supabaseUrl: 'https://volmcqqfsvfdvblkskkm.supabase.co',
+    supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvbG1jcXFmc3ZmZHZibGtza2ttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU3MDQ3MzAsImV4cCI6MjExMTI4MDczMH0.K6oHtgK2QTv6oI3M8FD0bHm5XIdfi1lEOPo8OxLH8W0',
     table: 'guestbook',
     maxName: 10,
     maxMessage: 60,
