@@ -1,5 +1,5 @@
 /* BINARI · LOG — 관리자 접속 기록 (방명록)
-   한 줄 메시지 + 닉네임을 마고 OS 로그 형식으로 보여 준다: [2026.11.28 14:02] 관리자 ○○ : 메시지
+   한 줄 메시지 + 닉네임을 마고 OS 로그 형식으로 보여 준다: [2026.11.28 14:02] [ADMIN·07] ○○ : 메시지
    저장은 Supabase 표 하나(config.js 의 guestbook). 숨긴 글(hidden)은 서버가 내려 주지 않는다. */
 (function () {
   'use strict';
@@ -37,8 +37,7 @@
     sent: '기록되었습니다.',
     sendFail: '기록하지 못했습니다. 잠시 후 다시 시도해 주세요.',
     wait: function (s) { return s + '초 뒤에 다시 쓸 수 있습니다.'; },
-    total: function (n) { return '기록 ' + n; },
-    who: '관리자'
+    total: function (n) { return '기록 ' + n; }
   };
 
   var URL_TABLE = BASE + '/rest/v1/' + encodeURIComponent(CFG.table || 'guestbook');
@@ -56,6 +55,10 @@
     if (link) link.hidden = false;
     if (st) st.textContent = 'OPEN';
   }
+
+  // 쓰기 칸 앞: 이 사람이 쓰면 붙을 태그
+  var mine = $('lg-mine');
+  if (mine) { var mt = tagOf(B.booth ? null : B.id, B.booth); mine.setAttribute('data-kind', mt.kind); mine.textContent = mt.text; }
 
   nameIn.maxLength = MAX_NAME;
   msgIn.maxLength = MAX_MSG;
@@ -83,6 +86,24 @@
     return '[' + d.getFullYear() + '.' + two(d.getMonth() + 1) + '.' + two(d.getDate()) + ' ' + two(d.getHours()) + ':' + two(d.getMinutes()) + ']';
   }
 
+  // ── 출처 태그: 닉네임 앞에 붙는 작은 표시 ──
+  //  관리자 번호로 들어온 글 → ADMIN·07 (설계자 00 은 ARCH·00) / 부스 아이패드 → BOOTH / 그 밖 → GUEST
+  //  번호와 부스가 둘 다 있으면 번호가 먼저
+  function tagOf(adminId, booth) {
+    var id = /^\d{2}$/.test(String(adminId == null ? '' : adminId)) ? String(adminId) : '';
+    if (id === '00') return { kind: 'arch', text: 'ARCH\u00b700' };
+    if (id) return { kind: 'admin', text: 'ADMIN\u00b7' + id };
+    if (booth) return { kind: 'booth', text: 'BOOTH' };
+    return { kind: 'guest', text: 'GUEST' };
+  }
+  function tagEl(t) {
+    var s = document.createElement('span');
+    s.className = 'lg-tag';
+    s.setAttribute('data-kind', t.kind);
+    s.textContent = t.text;
+    return s;
+  }
+
   // ── 목록 ──
   var rows = [], loaded = false, fresh = {};
   function span(cls, text) { var s = document.createElement('span'); s.className = cls; s.textContent = text; return s; }
@@ -93,7 +114,12 @@
       if (fresh[r.id]) item.className = 'is-new';
       item.appendChild(span('lg-t', stamp(r.created_at)));
       item.appendChild(document.createTextNode(' '));
-      item.appendChild(span('lg-who', TEXT.who + ' ' + r.name));
+      // 태그와 닉네임은 줄이 바뀌어도 떨어지지 않게 한 덩어리로
+      var by = document.createElement('span');
+      by.className = 'lg-by';
+      by.appendChild(tagEl(tagOf(r.admin_id, r.booth)));
+      by.appendChild(span('lg-who', r.name));
+      item.appendChild(by);
       item.appendChild(document.createTextNode(' : '));
       item.appendChild(span('lg-m', r.message));
       listEl.appendChild(item);
@@ -108,7 +134,7 @@
     if (loading) return;
     loading = true;
     if (!loaded) note(TEXT.loading);
-    fetch(URL_TABLE + '?select=id,created_at,name,message&order=created_at.desc,id.desc&limit=' + LIMIT, { headers: HEAD, cache: 'no-store' })
+    fetch(URL_TABLE + '?select=id,created_at,name,message,admin_id,booth&order=created_at.desc,id.desc&limit=' + LIMIT, { headers: HEAD, cache: 'no-store' })
       .then(function (res) { if (!res.ok) throw new Error('log ' + res.status); return res.json(); })
       .then(function (list) {
         loaded = true;
@@ -149,7 +175,7 @@
     btn.disabled = true;
     say(TEXT.sending, 'busy');
     var body = { name: name, message: msg, admin_id: B.booth ? null : (B.id || null), booth: !!B.booth };
-    fetch(URL_TABLE + '?columns=name,message,admin_id,booth&select=id,created_at,name,message', {
+    fetch(URL_TABLE + '?columns=name,message,admin_id,booth&select=id,created_at,name,message,admin_id,booth', {
       method: 'POST',
       headers: Object.assign({ Prefer: 'return=representation' }, HEAD),
       body: JSON.stringify(body)
@@ -157,7 +183,7 @@
       .then(function (res) { if (!res.ok) throw new Error('log ' + res.status); return res.json(); })
       .then(function (out) {
         var row = Array.isArray(out) ? out[0] : out;
-        if (!row || !row.created_at) row = { id: 'me' + Date.now(), created_at: new Date().toISOString(), name: name, message: msg };
+        if (!row || !row.created_at) row = { id: 'me' + Date.now(), created_at: new Date().toISOString(), name: name, message: msg, admin_id: body.admin_id, booth: body.booth };
         sending = false;
         remember({ name: name, last: Date.now() });
         // 쓰자마자 맨 위에 보이게

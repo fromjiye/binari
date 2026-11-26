@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=16">
+<link rel="stylesheet" href="style.css?v=17">
 </head>
 <body data-role="admin">
 
@@ -220,9 +220,9 @@
     </header>
 
     <div class="lg-body">
-      <!-- 쓰기: 로그 한 줄과 같은 모양 — 관리자 [닉네임] : [메시지] -->
+      <!-- 쓰기: 로그 한 줄과 같은 모양 — [태그] [닉네임] : [메시지] -->
       <form class="lg-form" id="lg-form" autocomplete="off" novalidate>
-        <label class="lg-who-row"><span>관리자</span><input type="text" id="lg-name" maxlength="10" placeholder="닉네임" aria-label="닉네임" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="next"></label>
+        <label class="lg-who-row"><span class="lg-tag" id="lg-mine" data-kind="guest">GUEST</span><input type="text" id="lg-name" maxlength="10" placeholder="닉네임" aria-label="닉네임" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="next"></label>
         <div class="lg-msg-row">
           <input type="text" id="lg-msg" maxlength="60" placeholder="한 줄 메시지" aria-label="한 줄 메시지" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send">
           <button type="submit" id="lg-send">기록 남기기</button>
@@ -389,6 +389,6 @@
 <script src="ritual.js?v=8"></script>
 <script src="inventory.js?v=4"></script>
 <script src="cert.js?v=2"></script>
-<script src="log.js?v=2"></script>
+<script src="log.js?v=3"></script>
 </body>
 </html>
