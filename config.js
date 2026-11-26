@@ -6,15 +6,15 @@ window.BINARI_CONFIG = {
   byeoriScore: 15000,
 
   // 랭킹 저장 위치.
-  //  provider: 'local'    → 그 폰 안에만 저장 (지금)
-  //  provider: 'supabase' → 아래 두 값을 채우면 모두가 같이 보는 공유 랭킹으로 바뀜
+  //  provider: 'supabase' → 모두가 같이 보는 공유 랭킹 (지금. 방명록과 같은 Supabase 프로젝트)
+  //  provider: 'local'    → 그 폰 안에만 저장
   //    supabaseUrl : 프로젝트 주소 (https://xxxx.supabase.co)
   //    supabaseKey : anon public 키
   //    table       : 표 이름. 열: id(text) name(text) score(int) perfect(int) combo(int) root(int) at(bigint)
   ranking: {
-    provider: 'local',
-    supabaseUrl: '',
-    supabaseKey: '',
+    provider: 'supabase',
+    supabaseUrl: 'https://volmcqqfsvfdvblkskkm.supabase.co',
+    supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvbG1jcXFmc3ZmZHZibGtza2ttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU3MDQ3MzAsImV4cCI6MjExMTI4MDczMH0.K6oHtgK2QTv6oI3M8FD0bHm5XIdfi1lEOPo8OxLH8W0',
     table: 'ritual_scores'
   },
 
