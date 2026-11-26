@@ -1720,3 +1720,112 @@ img.is-flat {
 @media (prefers-reduced-motion: reduce) {
   .lg-list li.is-new { animation: none; }
 }
+
+/* ══════════════ SYNC — 공명 접속 ══════════════ */
+.sync { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; padding: 0; }
+.sync[hidden] { display: none; }
+.sy-view { flex: 1; display: flex; flex-direction: column; padding: 18px 20px calc(28px + env(safe-area-inset-bottom)); }
+.sy-view[hidden] { display: none; }
+
+/* 시작 */
+.sy-intro { justify-content: center; }
+.sy-ring { display: block; width: 92px; height: 92px; margin: 0 auto 28px; border: 1px dashed rgba(var(--a), 0.6); border-top-color: var(--accent); border-bottom-color: var(--accent); border-radius: 50%; animation: spin 18s linear infinite; }
+.sy-title { font-family: var(--mono); font-size: 21px; font-weight: 600; letter-spacing: 0.08em; line-height: 1.4; }
+.sy-title span { font-family: var(--mono); }
+.sy-title i { display: block; margin-top: 2px; font-size: 13px; font-weight: 400; letter-spacing: 0.14em; color: var(--accent); }
+.sy-text { margin-top: 18px; padding-left: 12px; border-left: 2px solid rgba(var(--a), 0.6); font-size: 15px; line-height: 1.75; color: var(--text); word-break: keep-all; }
+.sy-main {
+  margin-top: 30px;
+  min-height: 54px;
+  background-color: var(--accent);
+  background-image: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0 1px, transparent 1px 3px);
+  color: var(--ink);
+  font-size: 17px;
+  font-weight: 700;
+}
+.sy-main span { margin-left: 8px; font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: 0.16em; }
+
+/* 질문 */
+.sy-prog p { display: flex; justify-content: space-between; align-items: baseline; font-size: 12.5px; color: var(--dim); }
+.sy-prog b { font-family: var(--mono); font-size: 15px; font-weight: 600; color: var(--accent); }
+.sy-prog-bar { height: 6px; margin-top: 6px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
+.sy-prog-bar i { display: block; height: 100%; background: var(--accent); transform: scaleX(0); transform-origin: 0 50%; transition: transform 0.28s ease-out; }
+.sy-q { margin-top: 30px; min-height: 3.1em; font-size: 21px; font-weight: 700; line-height: 1.5; word-break: keep-all; }
+.sy-choices { display: flex; flex-direction: column; gap: 9px; margin-top: 22px; }
+.sy-choice {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  min-height: 56px;
+  padding: 14px 14px;
+  border: 1px solid rgba(var(--a), 0.4);
+  background: var(--panel);
+  color: var(--text);
+  font-size: 15.5px;
+  line-height: 1.5;
+  text-align: left;
+  word-break: keep-all;
+}
+.sy-choice-no { flex: none; font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--accent); }
+.sy-choice:active, .sy-choice.is-picked { border-color: var(--accent); background: rgba(var(--a), 0.16); }
+.sy-scan.is-in .sy-q, .sy-scan.is-in .sy-choice { animation: sy-in 0.26s ease-out both; }
+.sy-scan.is-in .sy-choice:nth-child(2) { animation-delay: 0.04s; }
+.sy-scan.is-in .sy-choice:nth-child(3) { animation-delay: 0.08s; }
+.sy-scan.is-in .sy-choice:nth-child(4) { animation-delay: 0.12s; }
+.sy-scan.is-in .sy-choice:nth-child(5) { animation-delay: 0.16s; }
+@keyframes sy-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* 시연: 진행률 100%가 깨짐 (글리치는 시연 결과에만) */
+.sy-prog.is-broken b { color: #d5d9db; animation: sy-flick 0.18s steps(2) infinite; }
+.sy-prog.is-broken .sy-prog-bar { background: transparent; overflow: visible; }
+.sy-prog.is-broken .sy-prog-bar i {
+  background: repeating-linear-gradient(90deg, #d5d9db 0 22%, transparent 22% 26%, #d5d9db 26% 61%, transparent 61% 68%, #d5d9db 68% 100%);
+  animation: sy-break 0.5s steps(3) infinite;
+}
+@keyframes sy-flick { 0% { opacity: 1; transform: none; } 100% { opacity: 0.45; transform: translateX(-3px); } }
+@keyframes sy-break {
+  0% { transform: scaleX(1) translate(0, 0); }
+  33% { transform: scaleX(1) translate(-6px, 3px); }
+  66% { transform: scaleX(1) translate(5px, -2px); }
+}
+
+/* 결과 카드 */
+.sy-card { position: relative; width: 100%; max-width: 420px; margin: 0 auto; aspect-ratio: 3 / 4; background: #0a0c0d; outline: 1px solid rgba(var(--a), 0.55); box-shadow: 0 0 26px rgba(var(--a), 0.14); overflow: hidden; }
+.sy-card-img { display: block; width: 100%; height: 100%; -webkit-touch-callout: default; user-select: none; -webkit-user-select: none; }
+.sy-result[data-state="drawing"] .sy-card-img { visibility: hidden; }
+.sy-ghost { display: none; }
+.sy-result .cert-save { width: 100%; max-width: 420px; margin: 14px auto 0; }
+.sy-result .cert-hint { max-width: 420px; margin-left: auto; margin-right: auto; }
+.sy-file { margin-top: 24px; }
+.sy-file p { margin-top: 12px; font-size: 14.5px; line-height: 1.8; color: var(--text); word-break: keep-all; }
+.sy-result .rs-actions { margin-top: 24px; }
+
+/* 시연 결과만: 흑백 + 글리치 */
+.sy-result.is-anomaly .sy-card { outline-color: rgba(213, 217, 219, 0.55); box-shadow: none; }
+.sy-result.is-anomaly .sy-ghost { display: block; position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; }
+.sy-result.is-anomaly[data-state="ready"] .sy-ghost.g1 { animation: sy-glitch-a 2.6s steps(1) infinite; }
+.sy-result.is-anomaly[data-state="ready"] .sy-ghost.g2 { animation: sy-glitch-b 3.4s steps(1) infinite; }
+@keyframes sy-glitch-a {
+  0%, 100% { opacity: 0; }
+  8% { opacity: 1; clip-path: inset(18% 0 74% 0); transform: translateX(-14px); }
+  11% { opacity: 1; clip-path: inset(52% 0 40% 0); transform: translateX(10px); }
+  14% { opacity: 0; }
+  61% { opacity: 1; clip-path: inset(33% 0 61% 0); transform: translateX(16px); }
+  64% { opacity: 0; }
+}
+@keyframes sy-glitch-b {
+  0%, 100% { opacity: 0; }
+  31% { opacity: 1; clip-path: inset(70% 0 22% 0); transform: translateX(12px); }
+  34% { opacity: 1; clip-path: inset(8% 0 86% 0); transform: translateX(-18px); }
+  37% { opacity: 0; }
+  83% { opacity: 1; clip-path: inset(44% 0 50% 0); transform: translateX(-10px); }
+  86% { opacity: 0; }
+}
+.sy-result.is-anomaly .sy-file .sec-head, .sy-result.is-anomaly .sy-file p { color: #c9cdcf; }
+.sy-result.is-anomaly .sy-file .sec-head { animation: sy-flick 2.2s steps(2) infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .sy-scan.is-in .sy-q, .sy-scan.is-in .sy-choice,
+  .sy-ring, .sy-prog.is-broken b, .sy-prog.is-broken .sy-prog-bar i,
+  .sy-result.is-anomaly .sy-ghost, .sy-result.is-anomaly .sy-file .sec-head { animation: none !important; }
+  .sy-prog-bar i { transition: none; }
+}

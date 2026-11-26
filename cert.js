@@ -29,6 +29,8 @@
     ritualKo: '굿판 최고 점수',
     relics: 'RELICS // RECOVERED',
     relicsKo: '회수한 유실물',
+    sync: 'SYNC // DECODER',
+    syncKo: '동기화된 디코더',
     status: 'STATUS',
     none: '—',
     holdIOS: '이미지를 길게 눌러 ‘사진 앱에 저장’을 선택하세요.',
@@ -131,27 +133,32 @@
     text(TEXT.issued, 72, 408, '400 22px ' + MONO, GRAY, 2.4);
     text(info.issued, 250, 408, '500 26px ' + MONO, WHITE, 1.2);
 
-    // 기록 두 칸 — 할수록 채워진다
+    // 기록 세 칸 — 할수록 채워진다 (굿판 최고 점수 · 회수한 유실물 · 동기화된 디코더)
     function box(x, y, w, h, en, ko) {
       c.strokeStyle = 'rgba(255,255,255,0.22)'; c.lineWidth = 1.5; c.strokeRect(x, y, w, h);
       c.fillStyle = ACCENT; // 귀퉁이 브래킷
       c.fillRect(x - 1, y - 1, 16, 3); c.fillRect(x - 1, y - 1, 3, 16);
       c.fillRect(x + w - 15, y + h - 2, 16, 3); c.fillRect(x + w - 2, y + h - 15, 3, 16);
-      text(en, x + 20, y + 31, '500 15px ' + MONO, ACCENT, 2);
-      text(ko, x + 20, y + 57, '400 18px ' + SANS, GRAY, 1);
+      text(en, x + 18, y + 31, '500 15px ' + MONO, ACCENT, 1);
+      text(ko, x + 18, y + 57, '400 18px ' + SANS, GRAY, 1);
     }
-    box(72, 436, 326, 126, TEXT.ritual, TEXT.ritualKo);
-    text(info.best > 0 ? String(info.best) : TEXT.none, 92, 544, '700 46px ' + MONO, info.best > 0 ? WHITE : GRAY, 1.5);
+    box(72, 436, 240, 126, TEXT.ritual, TEXT.ritualKo);
+    text(info.best > 0 ? String(info.best) : TEXT.none, 92, 544, '700 44px ' + MONO, info.best > 0 ? WHITE : GRAY, 1);
 
-    box(418, 436, 326, 126, TEXT.relics, TEXT.relicsKo);
+    box(326, 436, 240, 126, TEXT.relics, TEXT.relicsKo);
     var got = info.relics.filter(Boolean).length;
-    var nw = text(String(got), 438, 544, '700 46px ' + MONO, got ? WHITE : GRAY, 0);
-    text('/ 6', 438 + nw + 12, 544, '500 28px ' + MONO, GRAY, 1);
+    var nw = text(String(got), 346, 544, '700 44px ' + MONO, got ? WHITE : GRAY, 0);
+    text('/ 6', 346 + nw + 8, 544, '500 24px ' + MONO, GRAY, 0.5);
     info.relics.forEach(function (on, i) {
-      var x = 560 + i * 28, y = 518;
-      if (on) { c.fillStyle = ACCENT; c.fillRect(x, y, 20, 26); }
-      else { c.strokeStyle = 'rgba(255,255,255,0.3)'; c.lineWidth = 1.5; c.strokeRect(x + 0.75, y + 0.75, 18.5, 24.5); }
+      var x = 440 + i * 20, y = 520;
+      if (on) { c.fillStyle = ACCENT; c.fillRect(x, y, 14, 24); }
+      else { c.strokeStyle = 'rgba(255,255,255,0.3)'; c.lineWidth = 1.5; c.strokeRect(x + 0.75, y + 0.75, 12.5, 22.5); }
     });
+
+    // SYNC 에서 공명한 디코더 (아직이면 —, 시연은 "시연 · 측정 불가")
+    box(580, 436, 240, 126, TEXT.sync, TEXT.syncKo);
+    if (info.decoder) text(info.decoder, 600, 542, '700 ' + (info.decoder.length > 3 ? 27 : 42) + 'px ' + SANS, WHITE, 1);
+    else text(TEXT.none, 600, 544, '700 44px ' + MONO, GRAY, 1);
 
     // ACCESS SEAL 도장 (index.html 의 도장과 같은 치수)
     (function seal(cx, cy, size, deg) {
@@ -245,11 +252,12 @@
       barcode: card.barcode, barW: card.barW, gapW: card.gapW,
       issued: stamp(api._now || new Date()),
       best: bestScore(),
-      relics: relics()
+      relics: relics(),
+      decoder: B.sync && B.sync.name ? B.sync.name() : ''
     };
     root.setAttribute('data-state', 'drawing');
     saveBtn.hidden = true; hint.hidden = true;
-    var sample = TEXT.head + TEXT.headKo + info.ko + info.en + info.idValue + info.issued + TEXT.ritualKo + TEXT.relicsKo + '접속 승인0123456789';
+    var sample = TEXT.head + TEXT.headKo + info.ko + info.en + info.idValue + info.issued + TEXT.ritualKo + TEXT.relicsKo + TEXT.syncKo + (info.decoder || '') + '접속 승인0123456789';
     return fontsReady(sample).then(function () {
       if (my !== seq) return;
       var cv = draw(info);

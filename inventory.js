@@ -235,7 +235,7 @@
         sfx('relic');
         var v = load();
         if (!v[item.key]) v[item.key] = Date.now();
-        if (item.key === 'voice') delete v.voicePending; // 굿판 첫 완료 연출은 한 번만
+        delete v[item.key + 'Pending']; // 굿판(voicePending) · SYNC(r03Pending) 첫 완료 연출은 한 번만
         save(v);
         if (stopAt != null) { resolve(); return; } // 캡처용: 끝 화면에서 멈춤
         setTimeout(function () {
@@ -277,7 +277,10 @@
   // 굿판을 처음 끝낸 뒤 아직 연출을 못 봤으면: 02번을 키링과 같은 연출로 한 번만
   function handlePending() {
     if (unlocking || forced) return;
-    if (load().voicePending) playUnlock(byNo('02'));
+    var v = load();
+    if (v.voicePending) playUnlock(byNo('02'));
+    else if (v.r03Pending) playUnlock(byNo('03')); // SYNC 를 처음 끝낸 뒤
+    else if (v.r04Pending) playUnlock(byNo('04')); // ARCHIVE 마지막 파일
   }
 
   function open() {
