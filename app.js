@@ -98,6 +98,7 @@
       localStorage.removeItem(KEY_DECODER);
       localStorage.removeItem('binari.relics.v1'); // 유실물 획득 기록 (랭킹 기록과 소리 설정은 지우지 않음)
       localStorage.removeItem('binari.best.v1');   // 굿판 최고 점수 (인증서에 씀)
+      localStorage.removeItem('binari.log.v1');    // 방명록에 쓴 닉네임 · 마지막으로 쓴 시각 (글 자체는 서버에 남음)
     } catch (e) {}
   }
 
@@ -176,7 +177,7 @@
     var IDLE = (parseFloat(params.get('idle')) || cfg.idleSeconds || 60) * 1000; // ?idle=초 는 점검용
     var inner = location.pathname + '?booth=1&frame=1';
     // 초기화할 때 지우는 것: 접속 기록 · 메신저 진행 · 굿판 알림 · 유실물 회수 기록. 랭킹 기록과 소리 설정은 남김
-    var WIPE = [KEY, KEY_EVENTS, KEY_DECODER, 'binari.relics.v1', 'binari.best.v1'];
+    var WIPE = [KEY, KEY_EVENTS, KEY_DECODER, 'binari.relics.v1', 'binari.best.v1', 'binari.log.v1'];
 
     document.body.className += ' booth-shell';
     document.body.setAttribute('data-screen', 'booth');
@@ -377,7 +378,7 @@
   var stampTimer = null;
 
   // ── 화면 이동: 주소 끝의 #decoder · #ritual 로 구분 (없으면 홈). 폰의 뒤로 가기가 그대로 먹음 ──
-  var SCREENS = { home: homeEl, decoder: $('decoder'), ritual: $('ritual'), inventory: $('inventory'), cert: $('cert') };
+  var SCREENS = { home: homeEl, decoder: $('decoder'), ritual: $('ritual'), inventory: $('inventory'), cert: $('cert'), log: $('logbook') };
   var booting = false;
 
   function screenFromHash() {
@@ -539,6 +540,7 @@
     var tell = function () { try { window.parent.postMessage({ type: 'binari-activity' }, location.origin); } catch (e) {} };
     document.addEventListener('pointerdown', tell, true);
     document.addEventListener('keydown', tell, true);
+    document.addEventListener('input', tell, true); // 화면 키보드로 글을 쓰는 동안 (방명록)
   }
 
   registerSW();

@@ -22,6 +22,21 @@ window.BINARI_CONFIG = {
   // 비어 있으면 BGM 버튼이 나오지 않는다. 효과음과 따로 켜고 끈다.
   bgm: '',
 
+  // LOG 방명록 (Supabase)
+  //  supabaseUrl : 프로젝트 주소 (https://xxxx.supabase.co)
+  //  supabaseKey : anon public 키
+  //    → 두 값을 채우면 홈의 LOG 가 열린다. 비어 있으면 "STANDBY"로 남는다
+  //  maxName · maxMessage : 글자 수 제한. Supabase 표의 제한과 같은 값이라, 늘리려면 표(SQL)도 같이 고쳐야 한다
+  //  cooldownSeconds : 한 번 쓴 뒤 다시 쓸 수 있을 때까지 걸리는 시간(초)
+  guestbook: {
+    supabaseUrl: '',
+    supabaseKey: '',
+    table: 'guestbook',
+    maxName: 10,
+    maxMessage: 60,
+    cooldownSeconds: 30
+  },
+
   // 부스 모드(?booth=1, 부스 아이패드)
   //  idleSeconds : 아무 조작이 없을 때 "다음 관리자를 기다리는 중"으로 바뀌는 시간(초)
   //  width · minHeight : 안쪽 폰 화면의 기준 크기. 이 비율 그대로 아이패드에 맞춰 키운다

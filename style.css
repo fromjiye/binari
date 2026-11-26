@@ -1636,3 +1636,68 @@ img.is-flat {
   letter-spacing: 0.06em;
 }
 .cert-save[hidden], .cert-hint[hidden] { display: none; }
+
+/* ══════════════ LOG — 관리자 접속 기록 (방명록) ══════════════ */
+.logs { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; padding: 0; }
+.logs[hidden] { display: none; }
+.lg-body { flex: 1; padding: 16px 20px calc(30px + env(safe-area-inset-bottom)); }
+
+/* 쓰기: 관리자 [닉네임] : [메시지] */
+.lg-form { padding: 12px; border: 1px solid rgba(var(--a), 0.45); background: var(--panel); }
+.lg-who-row { display: flex; align-items: center; gap: 10px; }
+.lg-who-row span { flex: none; font-size: 14px; font-weight: 700; color: var(--accent); }
+.lg-msg-row { display: flex; gap: 6px; margin-top: 6px; }
+.lg-form input {
+  flex: 1;
+  min-width: 0;
+  min-height: 46px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: rgba(10, 14, 15, 0.92);
+  color: var(--text);
+  font: inherit;
+  font-size: 16px; /* 16px 아래면 아이폰이 칸을 누를 때 화면을 확대함 */
+  -webkit-appearance: none;
+  appearance: none;
+}
+.lg-form input::placeholder { color: var(--dim); }
+.lg-form input:focus { outline: none; border-color: var(--accent); }
+.lg-form button {
+  flex: none;
+  min-height: 46px;
+  padding: 0 14px;
+  background-color: var(--accent);
+  background-image: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0 1px, transparent 1px 3px);
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 700;
+}
+.lg-form button:disabled { background-color: #2a3436; background-image: none; color: var(--dim); cursor: default; }
+.lg-meta { display: flex; justify-content: space-between; gap: 10px; min-height: 20px; margin-top: 8px; font-size: 12.5px; color: var(--dim); }
+.lg-meta span[data-kind="ok"], .lg-meta span[data-kind="need"] { color: var(--accent); }
+.lg-meta span[data-kind="fail"] { color: var(--text); }
+.lg-meta b { flex: none; font-family: var(--mono); font-weight: 500; letter-spacing: 0.06em; }
+
+/* 목록: [2026.11.28 14:02] 관리자 ○○ : 메시지 */
+.logs .sec-head { margin-top: 20px; }
+.lg-list li {
+  padding: 9px 0 10px;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--dim);
+  word-break: keep-all; /* 한글은 낱말 단위로 줄바꿈 */
+  overflow-wrap: anywhere; /* 띄어쓰기 없는 긴 글은 칸 안에서 끊음 */
+}
+.lg-t { font-family: var(--mono); font-size: 12px; letter-spacing: 0.02em; color: var(--dim); white-space: nowrap; }
+.lg-who { font-weight: 700; color: var(--accent); }
+.lg-m { color: var(--text); }
+.lg-list li.is-new { animation: lg-new 2.4s ease-out; }
+@keyframes lg-new {
+  0% { background: rgba(var(--a), 0.26); }
+  100% { background: rgba(var(--a), 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lg-list li.is-new { animation: none; }
+}
