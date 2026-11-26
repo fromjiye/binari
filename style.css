@@ -1516,6 +1516,31 @@ img.is-flat {
 .inv-unlock.is-done .inv-u-row b { color: var(--accent); text-shadow: 0 0 12px rgba(var(--a), 0.6); }
 .inv-u-row em { margin-left: auto; font-family: var(--mono); font-style: normal; font-weight: 600; color: var(--dim); }
 
+/* ══════════════ 부스 모드(?booth=1) 바깥 화면 ══════════════ */
+.booth-shell { display: block; overflow: hidden; background: #020303; }
+.booth-shell > .frame,
+.booth-shell > .inapp,
+.booth-shell > .noscript { display: none !important; }
+.booth-stage { position: fixed; top: 0; left: 0; transform-origin: 0 0; background: #050707; box-shadow: 0 0 0 1px var(--line); }
+.booth-stage iframe { display: block; border: 0; background: #050707; }
+.booth-wait {
+  position: fixed;
+  z-index: 10;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.6vh;
+  width: 100%;
+  padding-bottom: 6vh;
+  background: #050707;
+  color: var(--text);
+}
+.booth-wait-seal { width: min(22vw, 200px); height: min(22vw, 200px); margin-bottom: 3vh; color: var(--accent); transform: rotate(-8deg); opacity: 0.9; }
+.booth-wait-ko { font-size: clamp(24px, 4.6vw, 42px); font-weight: 700; letter-spacing: 0.1em; }
+.booth-wait-en { font-family: var(--mono); font-size: clamp(14px, 2.2vw, 20px); font-weight: 600; letter-spacing: 0.34em; color: var(--accent); animation: gate-pulse 1.8s ease-in-out infinite; }
+
 /* '동작 줄이기'를 켠 폰: 흐르는 줄은 멈춘 줄로, 연출은 결과만 */
 @media (prefers-reduced-motion: reduce) {
   .fx::before,
@@ -1529,7 +1554,7 @@ img.is-flat {
     animation-duration: 0.01ms;
     animation-delay: 0s;
   }
-  .typing i, .chat[data-mission] .mission span, .gate-en { animation: none; }
+  .typing i, .chat[data-mission] .mission span, .gate-en, .booth-wait-en { animation: none; }
   .nm-root { animation: none; box-shadow: 0 0 0 3px rgba(var(--a), 0.38); }
   .nm-cheer.go, .nm-alert.go { animation: none; opacity: 1; }
   .inv-toast.go { animation: none; opacity: 1; }

@@ -20,5 +20,10 @@ window.BINARI_CONFIG = {
 
   // 반복 재생용 BGM 파일 주소 (예: 'assets/audio/bgm.mp3').
   // 비어 있으면 BGM 버튼이 나오지 않는다. 효과음과 따로 켜고 끈다.
-  bgm: ''
+  bgm: '',
+
+  // 부스 모드(?booth=1, 부스 아이패드)
+  //  idleSeconds : 아무 조작이 없을 때 "다음 관리자를 기다리는 중"으로 바뀌는 시간(초)
+  //  width · minHeight : 안쪽 폰 화면의 기준 크기. 이 비율 그대로 아이패드에 맞춰 키운다
+  booth: { idleSeconds: 60, width: 440, minHeight: 780 }
 };

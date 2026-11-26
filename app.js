@@ -140,7 +140,105 @@
     kakao: '카카오톡 안에서 열렸어요. 오른쪽 아래 공유 버튼 → 다른 브라우저로 열기를 눌러 주세요.',
     insta: '인스타그램 안에서 열렸어요. 오른쪽 위 ⋯ → 외부 브라우저에서 열기를 눌러 주세요.'
   };
-  var inApp = inAppKind();
+  var params;
+  try { params = new URLSearchParams(location.search); }
+  catch (e) { params = { get: function () { return null; }, has: function () { return false; } }; }
+
+  // ── 오프라인 동작: 서비스 워커(sw.js)가 사이트 파일을 받아 두고, 새 버전은 연결됐을 때 알아서 갈아 둔다 ──
+  function registerSW() {
+    if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').then(function () {
+        return navigator.serviceWorker.ready;
+      }).then(function (reg) {
+        // 화면이 다 뜬 뒤에 폰트 조각도 받아 두라고 알림
+        if (reg.active) reg.active.postMessage({ type: 'warm' });
+      }).catch(function () {});
+    });
+  }
+
+  // ══════════════ 부스 모드: 주소에 ?booth=1 (부스 아이패드) ══════════════
+  // 바깥 화면(여기)은 폰 화면을 아이패드 가운데에 비율 그대로 키워서 보여 주고,
+  // 아무 조작 없이 시간이 지나면 "다음 관리자를 기다리는 중"으로 바꾼 뒤 처음부터 다시 시작하게 한다.
+  // 실제 사이트는 안쪽 틀(?booth=1&frame=1)에서 폰 크기로 그대로 돈다.
+  var BOOTH = params.get('booth') === '1';
+  var BOOTH_INNER = BOOTH && params.has('frame');
+  if (BOOTH && !BOOTH_INNER) {
+    startBoothShell();
+    registerSW();
+    return;
+  }
+
+  function startBoothShell() {
+    var cfg = (window.BINARI_CONFIG && window.BINARI_CONFIG.booth) || {};
+    var W = cfg.width || 440, MIN_H = cfg.minHeight || 780;
+    var IDLE = (parseFloat(params.get('idle')) || cfg.idleSeconds || 60) * 1000; // ?idle=초 는 점검용
+    var inner = location.pathname + '?booth=1&frame=1';
+    // 초기화할 때 지우는 것: 접속 기록 · 메신저 진행 · 굿판 알림 · 유실물 회수 기록. 랭킹 기록과 소리 설정은 남김
+    var WIPE = [KEY, KEY_EVENTS, KEY_DECODER, 'binari.relics.v1'];
+
+    document.body.className += ' booth-shell';
+    document.body.setAttribute('data-screen', 'booth');
+
+    var stage = el('div', null, 'booth-stage');
+    var frame = document.createElement('iframe');
+    frame.title = 'BINARI · MAGO OS 관리자 콘솔';
+    frame.setAttribute('allow', 'autoplay');
+    stage.appendChild(frame);
+    document.body.appendChild(stage);
+
+    var wait = el('button', null, 'booth-wait');
+    wait.type = 'button';
+    wait.hidden = true;
+    wait.innerHTML = '<svg class="booth-wait-seal" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-art"/></svg>';
+    wait.appendChild(el('span', '다음 관리자를 기다리는 중', 'booth-wait-ko'));
+    wait.appendChild(el('span', 'STANDBY', 'booth-wait-en'));
+    document.body.appendChild(wait);
+
+    // 폰 레이아웃을 비율 그대로 키워 가운데에: 세로를 꽉 채우되 가로를 넘지 않게
+    function fit() {
+      var vw = window.innerWidth, vh = window.innerHeight;
+      var s = Math.min(vw / W, vh / MIN_H);
+      frame.style.width = W + 'px';
+      frame.style.height = Math.ceil(vh / s) + 'px';
+      stage.style.transform = 'scale(' + s + ')';
+      stage.style.left = Math.max(0, (vw - W * s) / 2) + 'px';
+    }
+    fit();
+    window.addEventListener('resize', fit);
+    window.addEventListener('orientationchange', fit);
+
+    var timer = 0, waiting = false;
+    function wipe() { WIPE.forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} }); }
+    function begin() { // 첫 접속 탭 화면부터
+      waiting = false;
+      wait.hidden = true;
+      frame.src = inner + '&t=' + Date.now();
+      poke();
+    }
+    function poke() {
+      clearTimeout(timer);
+      if (!waiting) timer = setTimeout(goIdle, IDLE);
+    }
+    function goIdle() {
+      waiting = true;
+      frame.src = 'about:blank'; // 안쪽 화면을 먼저 멈춘 뒤에 기록을 지움
+      setTimeout(wipe, 50);
+      wait.hidden = false;
+    }
+    wait.addEventListener('click', function () { wipe(); begin(); });
+    // 안쪽 화면이 조작을 알려 오면 시간을 다시 잰다
+    window.addEventListener('message', function (ev) {
+      if (ev.origin === location.origin && ev.data && ev.data.type === 'binari-activity') poke();
+    });
+    document.addEventListener('pointerdown', poke, true);
+
+    wipe(); // 부스를 켤 때도 지난 관람객의 기록 없이 시작
+    begin();
+  }
+
+  // 부스 모드에서는 인앱 브라우저 안내 · 카카오톡 자동 이동을 끈다
+  var inApp = BOOTH ? null : inAppKind();
 
   // 카카오톡: 지금 주소(?id= · ?relic= 그대로)를 바깥 브라우저로 자동으로 넘긴다.
   // 같은 창에서 되풀이되지 않게 한 번만 시도하고, 안 넘어가면 아래 안내 띠가 남는다.
@@ -153,14 +251,10 @@
     }
   }
 
-  var params;
-  try { params = new URLSearchParams(location.search); }
-  catch (e) { params = { get: function () { return null; }, has: function () { return false; } }; }
-
   // 테스트용: ?reset 을 붙이면 이 폰의 접속 기록을 지우고 처음 접속처럼 시작
   if (params.has('reset')) clear();
 
-  var incoming = normalizeId(params.get('id'));
+  var incoming = BOOTH ? null : normalizeId(params.get('id')); // 부스 모드는 id를 무시하고 항상 "관리자"
   var saved = load();
   var savedId = saved && Object.prototype.hasOwnProperty.call(ROSTER, saved.id) ? saved.id : null;
 
@@ -398,6 +492,7 @@
     readEvents: readEvents,
     writeEvents: writeEvents,
     keys: { decoder: KEY_DECODER },
+    booth: BOOTH,
     relic: params.has('relic') ? params.get('relic') : null // 키링 태그 주소 ?relic=번호 (inventory.js 가 처리)
   };
 
@@ -424,15 +519,12 @@
     $('inapp-close').addEventListener('click', function () { bar.hidden = true; });
   }
 
-  // ── 오프라인 동작: 서비스 워커(sw.js)가 사이트 파일을 받아 두고, 새 버전은 연결됐을 때 알아서 갈아 둔다 ──
-  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
-    window.addEventListener('load', function () {
-      navigator.serviceWorker.register('sw.js').then(function () {
-        return navigator.serviceWorker.ready;
-      }).then(function (reg) {
-        // 화면이 다 뜬 뒤에 폰트 조각도 받아 두라고 알림
-        if (reg.active) reg.active.postMessage({ type: 'warm' });
-      }).catch(function () {});
-    });
+  // 부스 모드의 안쪽 화면: 조작이 있을 때마다 바깥 화면에 알려서 60초를 다시 재게 한다
+  if (BOOTH_INNER && window.parent !== window) {
+    var tell = function () { try { window.parent.postMessage({ type: 'binari-activity' }, location.origin); } catch (e) {} };
+    document.addEventListener('pointerdown', tell, true);
+    document.addEventListener('keydown', tell, true);
   }
+
+  registerSW();
 })();
