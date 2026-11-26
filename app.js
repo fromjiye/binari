@@ -97,6 +97,7 @@
       localStorage.removeItem(KEY_EVENTS);
       localStorage.removeItem(KEY_DECODER);
       localStorage.removeItem('binari.relics.v1'); // 유실물 획득 기록 (랭킹 기록과 소리 설정은 지우지 않음)
+      localStorage.removeItem('binari.best.v1');   // 굿판 최고 점수 (인증서에 씀)
     } catch (e) {}
   }
 
@@ -175,7 +176,7 @@
     var IDLE = (parseFloat(params.get('idle')) || cfg.idleSeconds || 60) * 1000; // ?idle=초 는 점검용
     var inner = location.pathname + '?booth=1&frame=1';
     // 초기화할 때 지우는 것: 접속 기록 · 메신저 진행 · 굿판 알림 · 유실물 회수 기록. 랭킹 기록과 소리 설정은 남김
-    var WIPE = [KEY, KEY_EVENTS, KEY_DECODER, 'binari.relics.v1'];
+    var WIPE = [KEY, KEY_EVENTS, KEY_DECODER, 'binari.relics.v1', 'binari.best.v1'];
 
     document.body.className += ' booth-shell';
     document.body.setAttribute('data-screen', 'booth');
@@ -376,7 +377,7 @@
   var stampTimer = null;
 
   // ── 화면 이동: 주소 끝의 #decoder · #ritual 로 구분 (없으면 홈). 폰의 뒤로 가기가 그대로 먹음 ──
-  var SCREENS = { home: homeEl, decoder: $('decoder'), ritual: $('ritual'), inventory: $('inventory') };
+  var SCREENS = { home: homeEl, decoder: $('decoder'), ritual: $('ritual'), inventory: $('inventory'), cert: $('cert') };
   var booting = false;
 
   function screenFromHash() {
@@ -493,6 +494,20 @@
     writeEvents: writeEvents,
     keys: { decoder: KEY_DECODER },
     booth: BOOTH,
+    inApp: inApp, // 인앱 브라우저 종류 (없으면 null)
+    // 인증서(cert.js)가 쓰는 카드 정보 — 홈 카드와 같은 값
+    card: {
+      no: activeId,
+      ko: who ? who.ko : '관리자',
+      en: who ? who.en : 'ADMINISTRATOR',
+      badge: isArch ? 'ARCHITECT' : 'ADMINISTRATOR',
+      idLabel: isArch ? 'ARCH ID' : 'ADMIN ID',
+      idValue: isArch ? 'ROOT-2199-0000' : (who ? 'ADM-2199-00' + activeId : '—'),
+      status: isArch ? 'ROOT ACCESS' : 'ACCESS GRANTED',
+      barcode: activeId && BARCODE[activeId] ? BARCODE[activeId] : '',
+      barW: BAR_W,
+      gapW: GAP_W
+    },
     relic: params.has('relic') ? params.get('relic') : null // 키링 태그 주소 ?relic=번호 (inventory.js 가 처리)
   };
 

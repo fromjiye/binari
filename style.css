@@ -1564,3 +1564,75 @@ img.is-flat {
   .chat[data-mission] .mission { animation: none; box-shadow: 0 0 0 3px rgba(var(--a), 0.38); }
   .hack[data-phase="stay"] .hack-bust { display: none; }
 }
+
+/* ══════════════ 관리자 인증서 ══════════════ */
+/* 홈의 "인증서 발급" 버튼 — 주 버튼(콘솔 열기)보다 한 단계 가볍게: 테두리만 */
+.cert-open {
+  margin-top: 18px;
+  width: 100%;
+  min-height: 52px;
+  border: 1px solid var(--accent);
+  background: rgba(var(--a), 0.06);
+  color: var(--accent);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.cert-open span, .cert-save span {
+  margin-left: 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+.cert-open:active { background: rgba(var(--a), 0.16); }
+.cert-open[hidden] { display: none; }
+
+.cert { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; padding: 0; }
+.cert[hidden] { display: none; }
+.cert-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 18px 16px calc(30px + env(safe-area-inset-bottom));
+}
+/* 카드 자리: 실물 카드와 같은 86.5 × 55 비율 */
+.cert-frame {
+  position: relative;
+  aspect-ratio: 11 / 7;
+  background: #0a0c0d;
+  outline: 1px solid rgba(var(--a), 0.45);
+  box-shadow: 0 0 34px rgba(var(--a), 0.14);
+}
+.cert-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* 길게 눌러 저장이 되도록 (아이폰) */
+  -webkit-touch-callout: default;
+  -webkit-user-select: auto;
+  user-select: auto;
+}
+.cert[data-state="drawing"] .cert-img { visibility: hidden; }
+.cert-hint {
+  margin-top: 18px;
+  padding: 12px 14px;
+  border-left: 3px solid var(--accent);
+  background: rgba(var(--a), 0.07);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text);
+}
+.cert-save {
+  margin-top: 22px;
+  width: 100%;
+  min-height: 54px;
+  background-color: var(--accent);
+  background-image: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0 1px, transparent 1px 3px);
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.cert-save[hidden], .cert-hint[hidden] { display: none; }

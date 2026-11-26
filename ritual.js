@@ -783,6 +783,12 @@
       }).then(function () { if (!api._freeze) secret.hidden = true; });
     }
 
+    // 이 폰의 굿판 최고 점수 (인증서에 씀)
+    try {
+      var best = JSON.parse(localStorage.getItem('binari.best.v1')) || {};
+      if (!(best.score >= run.score)) localStorage.setItem('binari.best.v1', JSON.stringify({ score: run.score, at: Date.now() }));
+    } catch (e) {}
+
     // 처음 한 판을 끝내면 유실물 "보내지 못한 음성 메시지" 획득 (인벤토리는 다음 단계에서 연결)
     // 첫 완료 때 한 번만 "회수 기록 해제" 연출을 보여 주려고 voicePending 을 같이 적어 둔다.
     // 연출은 결과 화면에서 나갈 때 인벤토리에서 나오고, 본 뒤에는 지워진다 (inventory.js)
