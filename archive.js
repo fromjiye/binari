@@ -124,7 +124,8 @@
     backBtn.setAttribute('aria-label', '홈으로 나가기');
     var n = done();
     countEl.textContent = TEXT.read + ' ' + n + ' / ' + TOTAL;
-    $('ar-done').hidden = n < TOTAL; // 8개를 다 읽으면: 메신저로 돌아가기
+    $('ar-foot').hidden = n < TOTAL; // 8개를 다 읽으면: 화면 아래에 메신저로 돌아가기
+    root.classList.toggle('has-foot', n >= TOTAL);
     filesEl.textContent = '';
     FILES.forEach(function (f, i) {
       var k = i + 1;
@@ -279,6 +280,8 @@
     }
 
     root.setAttribute('data-view', 'read');
+    $('ar-foot').hidden = true; // 파일을 읽는 동안에는 아래 고정 바 없음 (파일 끝의 버튼을 씀)
+    root.classList.remove('has-foot');
     listView.hidden = true; readView.hidden = false;
     stepEl.textContent = 'FILE ' + no2(k) + '/' + no2(TOTAL);
     backLabel.textContent = TEXT.list;

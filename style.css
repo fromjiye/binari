@@ -1411,10 +1411,15 @@ body[data-scan] .ring::before { animation: spin 18s linear infinite; }
 
 .inv-pic { display: flex; align-items: center; justify-content: center; width: 100%; aspect-ratio: 1.38; margin-bottom: 5px; background: #06090a; overflow: hidden; }
 .inv-pic img { max-width: 88%; max-height: 88%; object-fit: contain; }
-/* 잠김: 어둡게 가린 실루엣 */
+/* 미회수: 형태는 한눈에 보이고 색 · 세부는 안 보이게 (회수 연출의 시작 그림 .inv-u-gray 도 같은 값)
+   · 투명 누끼(01 · 05 · 06): 단색 회색 실루엣 — brightness(0) 으로 검게 만든 뒤 invert 로 회색(#606060 쯤)
+   · 바탕이 있는 그림(02 · 03 · 04, .is-flat): 회색조로 밝기를 올리고 세부만 살짝 흐리게 */
 .is-locked .inv-pic img,
 .is-locked .inv-d-pic img,
-.inv-u-gray { filter: grayscale(1) brightness(0.26) contrast(1.25); }
+.inv-u-gray { filter: brightness(0) invert(0.375); }
+.is-locked .inv-pic img.is-flat { filter: grayscale(1) brightness(0.5) contrast(1.1) blur(1px); }
+.is-locked .inv-d-pic img.is-flat,
+.inv-u-gray.is-flat { filter: grayscale(1) brightness(0.5) contrast(1.1) blur(2px); }
 
 .inv-no { font-family: var(--mono); font-size: 10.5px; font-weight: 600; letter-spacing: 0.16em; color: var(--accent); }
 .is-locked .inv-no { color: var(--dim); }
@@ -1830,7 +1835,7 @@ img.is-flat {
 .sy-result .cert-hint { max-width: 420px; margin-left: auto; margin-right: auto; }
 .sy-file { margin-top: 24px; }
 .sy-file p { margin-top: 12px; font-size: 14.5px; line-height: 1.8; color: var(--text); word-break: keep-all; }
-.sy-result .rs-actions { margin-top: 24px; }
+/* 결과 화면의 버튼 줄(다시 스캔 · 메신저로 돌아가기)은 화면 아래 고정 바 — 맨 아래 .foot-bar 규칙과 함께 */
 
 /* 시연 결과만: 흑백 + 글리치 */
 .sy-result.is-anomaly .sy-card { outline-color: rgba(213, 217, 219, 0.55); box-shadow: none; }
@@ -2056,6 +2061,27 @@ img.is-flat {
 }
 
 /* 체험 순서: 인벤토리 · ARCHIVE 아래의 메신저 버튼 */
-.inv-next { margin-top: 20px; }
-.ar-view .sy-main { width: 100%; margin-top: 22px; }
 .lg-next { margin-top: 14px; }
+
+/* ══════════════ 화면 아래 고정 바 (끝 버튼) ══════════════
+   메신저의 "임무 바로 가기"(.chat-foot)와 같은 모양. 스크롤 위치와 상관없이 화면 아래에 늘 보인다.
+   (바깥 틀 .frame 이 overflow: hidden 이라 sticky 는 듣지 않는다 → fixed)
+   홈 인디케이터만큼 아래를 띄우고, 바가 있는 화면은 내용 아래에 바 높이만큼 여백을 둬서 마지막 줄을 가리지 않게 한다 */
+.foot-bar,
+.sy-result .rs-actions {
+  position: fixed;
+  z-index: 3;
+  left: max(0px, calc(50% - 240px));
+  right: max(0px, calc(50% - 240px));
+  bottom: 0;
+  margin: 0;
+  padding: 10px 20px calc(18px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+  background: rgba(5, 7, 7, 0.95);
+}
+.foot-bar[hidden] { display: none; }
+/* 바 높이: 위 10 + 버튼 50 + 아래 18 (+ 홈 인디케이터) */
+.inventory.has-foot .inv-body,
+.archive.has-foot .ar-view,
+.sy-result { padding-bottom: calc(98px + env(safe-area-inset-bottom)); }
+.inventory.has-foot .inv-toast { bottom: calc(96px + env(safe-area-inset-bottom)); } /* 알림은 바 위에 */

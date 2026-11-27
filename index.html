@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=25">
+<link rel="stylesheet" href="style.css?v=26">
 </head>
 <body data-role="admin">
 
@@ -310,7 +310,6 @@
     <div class="ar-view" id="ar-list">
       <h2 class="sec-head">FILES <span id="ar-count"></span></h2>
       <ol class="ar-files" id="ar-files"></ol>
-      <button type="button" class="sy-main" id="ar-done" data-go="decoder" hidden>메신저로 돌아가기 <span aria-hidden="true">▸</span></button>
     </div>
 
     <!-- 파일 읽기 -->
@@ -326,6 +325,10 @@
         <button type="button" class="sy-main" id="ar-next" hidden></button>
       </div>
     </div>
+    <!-- 8개를 다 읽은 뒤의 목록: 화면 아래에 늘 보이는 버튼 -->
+    <footer class="foot-bar" id="ar-foot" hidden>
+      <button type="button" class="mission" id="ar-done" data-go="decoder">메신저로 돌아가기 <span aria-hidden="true">▸</span></button>
+    </footer>
   </section>
 
   <!-- INVENTORY — 유실물 인벤토리 -->
@@ -346,8 +349,11 @@
     <div class="inv-body">
       <p class="inv-top"><span>회수</span><b id="inv-count">0 / 6</b><span class="inv-segs" id="inv-segs" aria-hidden="true"></span></p>
       <ul class="inv-grid" id="inv-grid"></ul>
-      <button type="button" class="mission inv-next" id="inv-next" data-go="decoder" hidden>메신저로 가기 <span aria-hidden="true">▸</span></button>
     </div>
+    <!-- 체험 순서를 다 끝내기 전까지: 화면 아래에 늘 보이는 버튼 (스크롤 위치와 상관없음) -->
+    <footer class="foot-bar" id="inv-foot" hidden>
+      <button type="button" class="mission" id="inv-next" data-go="decoder">메신저로 가기 <span aria-hidden="true">▸</span></button>
+    </footer>
 
     <p class="inv-toast" id="inv-toast" role="status" hidden></p>
 
@@ -487,10 +493,10 @@
 <script src="sound.js?v=4"></script>
 <script src="decoder.js?v=6"></script>
 <script src="ritual.js?v=11"></script>
-<script src="inventory.js?v=8"></script>
+<script src="inventory.js?v=9"></script>
 <script src="cert.js?v=3"></script>
 <script src="sync.js?v=7"></script>
-<script src="archive.js?v=6"></script>
+<script src="archive.js?v=7"></script>
 <script src="log.js?v=5"></script>
 </body>
 </html>

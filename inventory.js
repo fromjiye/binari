@@ -323,8 +323,8 @@
   function open() {
     render();
     // 체험 순서를 아직 다 끝내지 않았으면 아래에 "메신저로 가기" (키링 태그로 바로 들어온 사람도 길이 이어지게)
-    var nextBtn = $('inv-next');
-    if (nextBtn) nextBtn.hidden = !(B.flow && B.flow.next().module);
+    var foot = $('inv-foot'); // 화면 아래 고정 바
+    if (foot) { foot.hidden = !(B.flow && B.flow.next().module); root.classList.toggle('has-foot', !foot.hidden); }
     handleTag();
     handlePending();
   }
