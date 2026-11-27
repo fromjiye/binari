@@ -31,6 +31,7 @@
     hintRes: '바늘이 444Hz에 올 때 탭',
     hintSal: '점을 끌어서 선이 겹치지 않게',
     hintNorm: '악귀의 색에 맞는 디코더를 탭',
+    hintTime: '맞히면 시간 +, 틀리거나 놓치면 시간 −',
     locked: '주파수 포착',
     solved: '살 풀림',
     unclass: '분류 불가',
@@ -53,9 +54,17 @@
   var RES = { center: 444, span: 12, perfect: 1.0, good: 4.0, half: [1.05, 0.8, 0.62], timeout: 20000, maxSync: 30 };
   var SAL = { nodes: 6, timeout: 20000 };
   var NORM = {
-    time: 30000,
-    spawn: [1150, 620],   // 악귀가 나오는 간격 (처음 → 끝, ms)
-    life: [2700, 1900],   // 악귀가 머무는 시간 (처음 → 끝, ms)
+    // 시간: 30초로 시작. 맞히면 늘고, 틀리거나 놓치면 줄어든다. 게이지는 time 보다 더 차지 않는다
+    time: 30000,          // 시작 시간이자 시간 게이지의 최대 (ms)
+    timeHit: 400,         // 정답: 시간 + (ms)
+    timeMiss: -1500,      // 버튼 틀림(MISS): 시간 − (ms)
+    timeLost: -1000,      // 악귀를 놓침(사라짐): 시간 − (ms)
+    // 난이도: 경과 시간 0 → ramp 동안 처음 값에서 끝 값으로 계속 짧아진다
+    ramp: 45000,
+    spawn: [1150, 450],   // 악귀가 나오는 간격 (처음 → 끝, ms)
+    life: [2700, 1500],   // 악귀가 머무는 시간 (처음 → 끝, ms)
+    doubleAt: 25000,      // 이 경과 시간 뒤로는 가끔 두 마리가 동시에
+    doubleChance: 0.3,    // 그 확률
     base: 100,            // 정답 한 번의 기본 점수
     // 반응 속도: 정답 점수 = base × 속도 계수 × 콤보 배율
     // 속도 계수는 악귀의 대기 줄이 남은 비율에 따라 speedMax(바로 누름) → speedMin(사라지기 직전), 선형
@@ -65,10 +74,13 @@
     sync: 7,              // 정답 한 번에 오르는 싱크로율 (%)
     rootBase: 1500, rootEach: 300, // ROOT ACCESS: 기본 + 정화한 악귀 하나당
     blackBonus: 800,      // 흑귀를 건드리지 않고 흘려보냈을 때
-    blackAt: [[6500, 9000], [14500, 17000]], // 흑귀가 나오는 시간대 (대귀가 나오기 전에 둘 다 끝남)
+    blackAt: [[6500, 9000], [14500, 17000]], // 흑귀가 나오는 시간대 (경과 시간)
     blackLife: 2600,
-    // 대귀: 마지막 10초에 가운데 하나. 버튼이 아니라 대귀 자체를 연타
-    bossLast: 10000,  // 남은 시간이 이만큼일 때 등장 (ms)
+    // 대귀: 남은 시간이 bossLeft 가 되거나 경과 시간이 bossAt 이 되면 가운데 하나. 버튼이 아니라 대귀 자체를 연타
+    // 대귀 단계는 bossTime 동안이고 그동안은 시간 증감이 없다 → 한 판은 길어도 bossAt + bossTime (60초)
+    bossLeft: 10000,
+    bossAt: 50000,
+    bossTime: 10000,
     bossTaps: 12,     // 정화까지 필요한 탭 수 (그림 크기 · 조각 격자는 아래 BOSS 에서)
     bossScore: 3000   // 정화했을 때 점수
   };
@@ -448,6 +460,18 @@
     root.toggleAttribute('data-root-ready', ready);
   }
 
+  // 시간 증감: 대귀 단계에서는 없음. 시간 바 아래에 +0.4 / −1.5 를 잠깐 띄운다
+  function addTime(ms) {
+    if (!nm || nm.over || nm.boss || typeof nm.left !== 'number') return;
+    nm.left = Math.min(NORM.time, nm.left + ms);
+    var d = $('nm-delta');
+    d.textContent = (ms > 0 ? '+' : '−') + (Math.abs(ms) / 1000).toFixed(1);
+    d.className = 'nm-delta ' + (ms > 0 ? 'is-plus' : 'is-minus');
+    void d.offsetWidth;
+    d.classList.add('show');
+  }
+  function normHint() { $('nm-hint').textContent = TEXT.hintNorm + '\n' + TEXT.hintTime; }
+
   function press(kind) {
     if (!nm || nm.over) return;
     var now = performance.now(), target = null, black = null;
@@ -467,6 +491,7 @@
       nm.score += gain;
       nm.sync = Math.min(100, nm.sync + NORM.sync); // 싱크로율은 속도와 상관없이 고정
       pop('+' + gain + (left >= NORM.fastAt ? ' FAST' : ''), 'is-good');
+      addTime(NORM.timeHit);
       sfx('hit', nm.combo);
       cheer(nm.combo);
     } else if (black) { // 흑귀: 맞는 버튼이 없다. 점수 변화 없음
@@ -475,8 +500,9 @@
       sfx('unclass');
     } else if (nm.boss && nm.boss.state === 'alive') { // 대귀는 버튼이 아니라 직접 탭: 버튼은 아무 일도 없음
       return;
-    } else { // 틀림: 콤보만 끊김
+    } else { // 틀림: 콤보가 끊기고 시간이 줄어듦
       nm.combo = 0;
+      addTime(NORM.timeMiss);
       pop('MISS', 'is-dim');
       sfx('wrong');
     }
@@ -695,23 +721,36 @@
     view('norm');
     buildKeys();
     root.removeAttribute('data-boss');
-    $('nm-hint').textContent = TEXT.hintNorm;
+    normHint();
+    $('nm-delta').className = 'nm-delta';
+    $('nm-delta').style.opacity = '';
     $('nm-root-fx').hidden = true;
     $('nm-pop').className = 'nm-pop';
     $('nm-alert').hidden = true;
     $('nm-cheer').classList.remove('go');
     var cv = $('nm-canvas');
     var blackTimes = NORM.blackAt.map(function (r) { return r[0] + Math.random() * (r[1] - r[0]); });
-    nm = { score: 0, combo: 0, maxCombo: 0, roots: 0, sync: run.startSync, ghosts: [], next: 700, hold: 0, start: performance.now(), over: false, field: fitCanvas(cv), blackTimes: blackTimes, boss: null, blackPass: 0 };
+    nm = { score: 0, combo: 0, maxCombo: 0, roots: 0, sync: run.startSync, ghosts: [], next: 700, hold: 0, start: performance.now(), over: false, field: fitCanvas(cv), blackTimes: blackTimes, boss: null, blackPass: 0,
+      left: NORM.time, prev: performance.now(), bossFrom: 0 }; // left = 남은 시간, bossFrom = 대귀가 나온 경과 시간
     hud();
-    var bossAt = NORM.time - NORM.bossLast;
 
     return new Promise(function (resolve) {
       loop(t, function (now) {
-        var f = nm.field = fitCanvas(cv), c = f.c, time = now - nm.start, p = Math.min(1, time / NORM.time);
-        $('nm-time').style.transform = 'scaleX(' + (1 - p) + ')';
+        // time = 경과 시간(난이도 · 흑귀 · 대귀 등장의 기준), nm.left = 남은 시간(시간 바)
+        var f = nm.field = fitCanvas(cv), c = f.c, time = now - nm.start, p = Math.min(1, time / NORM.ramp);
+        if (!nm.boss) {
+          nm.left -= now - nm.prev;
+          if (nm.left <= NORM.bossLeft || time >= NORM.bossAt) { // 대귀 단계로: 지금부터 bossTime 동안, 시간 증감 없음
+            nm.left = NORM.bossTime; nm.bossFrom = time;
+            nm.ghosts.forEach(function (g) { if (g.state === 'alive' && g.kind !== 'black') { g.state = 'gone'; g.end = now; } }); // 남아 있던 작은 악귀는 물러남 (벌점 없음)
+            for (var bi = 0; bi < nm.blackTimes.length; bi++) nm.blackTimes[bi] = null;
+            spawnBoss(now, f);
+          }
+        } else nm.left = Math.max(0, NORM.bossTime - (time - nm.bossFrom));
+        nm.prev = now;
+        $('nm-time').style.transform = 'scaleX(' + Math.max(0, Math.min(1, nm.left / NORM.time)) + ')';
 
-        if (time >= NORM.time) { // 끝
+        if (nm.boss && nm.left <= 0) { // 끝
           nm.over = true;
           c.clearRect(0, 0, f.w, f.h);
           run.score = nm.score; run.maxCombo = nm.maxCombo; run.roots = nm.roots;
@@ -732,11 +771,15 @@
             nm.hold = now + NORM.blackLife * 0.75;
           }
         }
-        // 마지막 10초: 작은 악귀는 더 나오지 않고 가운데에 대귀 하나
-        if (!nm.boss && time >= bossAt) spawnBoss(now, f);
-        if (time >= nm.next && now >= nm.hold && !blackSoon && time < bossAt - 400) {
+        // 대귀 단계에는 작은 악귀가 더 나오지 않는다. doubleAt 뒤로는 가끔 두 마리가 동시에 (서로 다른 색)
+        if (!nm.boss && time >= nm.next && now >= nm.hold && !blackSoon) {
           var kinds = ['blue', 'red', 'yellow', 'white'];
-          nm.ghosts.push(makeGhost(kinds[Math.floor(Math.random() * 4)], now, NORM.life[0] + (NORM.life[1] - NORM.life[0]) * p, f));
+          var count = (time >= NORM.doubleAt && Math.random() < NORM.doubleChance) ? 2 : 1;
+          var first = Math.floor(Math.random() * 4);
+          for (var gi = 0; gi < count; gi++) {
+            var kind = kinds[(first + (gi ? 1 + Math.floor(Math.random() * 3) : 0)) % 4];
+            nm.ghosts.push(makeGhost(kind, now, NORM.life[0] + (NORM.life[1] - NORM.life[0]) * p, f));
+          }
           nm.next = time + NORM.spawn[0] + (NORM.spawn[1] - NORM.spawn[0]) * p;
         }
 
@@ -747,7 +790,7 @@
             g.state = 'gone'; g.end = now;
             if (g.kind === 'black') {
               if (!g.touched) { nm.blackPass += 1; nm.score += NORM.blackBonus; pop('+' + NORM.blackBonus, 'is-good'); sfx('pass'); hud(); }
-            } else { nm.combo = 0; hud(); }
+            } else { nm.combo = 0; addTime(NORM.timeLost); hud(); } // 놓침: 콤보가 끊기고 시간이 줄어듦
           }
           drawGhost(c, g, now);
           if (g.state === 'alive' || now - g.end < 340) keep.push(g);
@@ -921,6 +964,9 @@
   document.addEventListener('binari:screen', function (ev) { onScreen(ev.detail); });
   if (document.body.getAttribute('data-screen') === 'ritual') start();
 
+  api._state = function () { return nm; }; // 점검용: 지금 판의 상태
+  api.NORM = NORM;
+
   // ── 캡처 · 점검용: 한 장면을 골라 멈춰 세움 ──
   api.debug = function (name) {
     token += 1;
@@ -947,7 +993,7 @@
     if (name === 'norm' || name === 'root' || name === 'black') {
       stepEl.textContent = '03 / 03';
       view('norm'); buildKeys();
-      $('nm-hint').textContent = TEXT.hintNorm;
+      normHint();
       var cv = $('nm-canvas'), f = fitCanvas(cv), now = performance.now();
       nm = { score: 4350, combo: 7, maxCombo: 7, roots: 0, sync: name === 'norm' ? 72 : 100, ghosts: [], next: 1e9, hold: 0, start: now, over: false, field: f, blackTimes: [] };
       var set = name === 'black' ? [['black', 1]] : [['blue', 0], ['yellow', 2], ['red', 3]];
@@ -964,14 +1010,15 @@
         ff.c.clearRect(0, 0, ff.w, ff.h);
         nm.ghosts.forEach(function (g) { drawGhost(ff.c, g, n2); });
       });
-      if (name === 'norm') pop('+143 FAST', 'is-good');
+      if (name === 'norm') { pop('+143 FAST', 'is-good'); var dd = $('nm-delta'); dd.textContent = '+0.4'; dd.className = 'nm-delta is-plus'; dd.style.opacity = '1'; }
+      if (name === 'black') { var dm = $('nm-delta'); dm.textContent = '−1.5'; dm.className = 'nm-delta is-minus'; dm.style.opacity = '1'; }
       if (name === 'root') setTimeout(function () { rootAccess(); }, 60);
       return;
     }
     if (name === 'boss' || name === 'boss-hit' || name === 'boss-down' || name === 'cheer10' || name === 'cheer20') {
       stepEl.textContent = '03 / 03';
       view('norm'); buildKeys();
-      $('nm-hint').textContent = TEXT.hintNorm;
+      normHint();
       var cv2 = $('nm-canvas'), f2 = fitCanvas(cv2), now2 = performance.now();
       var isBoss = name.indexOf('boss') === 0;
       nm = { score: isBoss ? 9150 : 5200, combo: name === 'cheer20' ? 19 : 9, maxCombo: 19, roots: 1, sync: 44, ghosts: [], next: 1e9, hold: 0, start: now2, over: false, field: f2, blackTimes: [], boss: null, blackPass: 2 };

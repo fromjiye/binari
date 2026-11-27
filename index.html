@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=22">
+<link rel="stylesheet" href="style.css?v=23">
 </head>
 <body data-role="admin">
 
@@ -429,6 +429,7 @@
     <!-- 03 정상화 -->
     <div class="rt-view rt-norm" id="rt-norm" hidden>
       <div class="rt-timer"><i id="nm-time"></i></div>
+      <p class="nm-delta" id="nm-delta" aria-hidden="true"></p>
       <div class="nm-hud">
         <p class="nm-stat"><span>SCORE</span><b id="nm-score">0</b></p>
         <p class="nm-stat nm-combo"><span>COMBO</span><b id="nm-combo-n">0</b><i id="nm-mult">x1.0</i></p>
@@ -482,7 +483,7 @@
 <script src="app.js?v=19"></script>
 <script src="sound.js?v=4"></script>
 <script src="decoder.js?v=4"></script>
-<script src="ritual.js?v=9"></script>
+<script src="ritual.js?v=10"></script>
 <script src="inventory.js?v=7"></script>
 <script src="cert.js?v=3"></script>
 <script src="sync.js?v=6"></script>
