@@ -58,7 +58,7 @@
   // 회수 경로가 되는 앱. open 이 false 면 아직 없는 앱 → 홈 메뉴처럼 STANDBY
   var ROUTES = {
     ritual:  { label: 'RITUAL',  open: true,  go: 'ritual' },
-    sync:    { label: 'SYNC',    open: false },
+    sync:    { label: 'SYNC',    open: true,  go: 'sync' },
     archive: { label: 'ARCHIVE', open: false }
   };
 
