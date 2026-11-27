@@ -187,6 +187,7 @@
         sending = false;
         remember({ name: name, last: Date.now() });
         B.emit('log_done'); // 메신저로 돌아가면 디코더가 반응
+        showNext();
         // 쓰자마자 맨 위에 보이게
         loaded = true;
         fresh[row.id] = true;
@@ -238,7 +239,13 @@
     clearTimeout(coolTimer);
     fresh = {};
   }
-  document.addEventListener('binari:screen', function (ev) { if (ev.detail === 'log') start(); else if (open) stop(); });
+  // 등록에 성공한 뒤에만 쓰기 칸 아래에 "메신저로 돌아가기" (등록 전에는 없음)
+  function showNext() {
+    var b = $('lg-next');
+    if (b) b.hidden = !store().last;
+  }
+  showNext();
+  document.addEventListener('binari:screen', function (ev) { if (ev.detail === 'log') { showNext(); start(); } else if (open) stop(); });
   document.addEventListener('visibilitychange', function () { if (open && !document.hidden) load(); });
   if (document.body.getAttribute('data-screen') === 'log') start();
 
