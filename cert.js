@@ -149,11 +149,30 @@
     var got = info.relics.filter(Boolean).length;
     var nw = text(String(got), 346, 544, '700 44px ' + MONO, got ? WHITE : GRAY, 0);
     text('/ 6', 346 + nw + 8, 544, '500 24px ' + MONO, GRAY, 0.5);
-    info.relics.forEach(function (on, i) {
+    if (got < 6) info.relics.forEach(function (on, i) { // 여섯 개를 다 채우면 칸 표시 대신 '해원' 도장
       var x = 440 + i * 20, y = 520;
       if (on) { c.fillStyle = ACCENT; c.fillRect(x, y, 14, 24); }
       else { c.strokeStyle = 'rgba(255,255,255,0.3)'; c.lineWidth = 1.5; c.strokeRect(x + 0.75, y + 0.75, 12.5, 22.5); }
     });
+
+    // 유실물 6/6: 그 칸 위에 '해원' 도장 (ACCESS SEAL 과 같은 잉크 느낌)
+    if (got === 6) (function haewon(cx, cy, r, deg) {
+      c.save();
+      c.translate(cx, cy); c.rotate(deg * Math.PI / 180);
+      c.globalAlpha = 0.92;
+      c.strokeStyle = ACCENT; c.fillStyle = ACCENT;
+      c.lineWidth = 3; c.beginPath(); c.arc(0, 0, r, 0, Math.PI * 2); c.stroke();
+      c.lineWidth = 1.1; c.beginPath(); c.arc(0, 0, r - 5, 0, Math.PI * 2); c.stroke();
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.font = '700 27px ' + SANS; c.fillText('해원', 0, -6);
+      c.font = '500 13px ' + SANS; c.fillText('解冤', 0, 18);
+      // 잉크가 덜 묻은 자리 몇 군데 (바탕색으로 가늘게 긁음)
+      c.globalAlpha = 1; c.strokeStyle = '#0A0C0D'; c.lineWidth = 1.1;
+      [[-30, -19, -11, -26], [9, 26, 30, 19], [-35, 10, -26, 17], [19, -30, 33, -21]].forEach(function (q) {
+        c.beginPath(); c.moveTo(q[0], q[1]); c.lineTo(q[2], q[3]); c.stroke();
+      });
+      c.restore();
+    })(326 + 240 - 50, 436 + 76, 40, -11); // 칸 오른쪽 아래 (칸 표시가 있던 자리): 영문 줄과 '6 / 6' 숫자는 가리지 않음
 
     // SYNC 에서 공명한 디코더 (아직이면 —, 시연은 "시연 · 측정 불가")
     box(580, 436, 240, 126, TEXT.sync, TEXT.syncKo);

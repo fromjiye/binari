@@ -7,6 +7,7 @@
     "{admin} 은 id가 있으면 '○○○ 관리자님', 없으면 '관리자님'으로 바뀝니다.",
     "after_ritual · after_sync · after_archive · after_log = 굿판 · 공명 접속 · 기록 보관소 · 접속 기록을 마치고 메신저로 돌아왔을 때 나오는 반응 (2026-11-28 지예 확인본).",
     "반응이 다 나오면 아래 버튼이 체험 순서의 다음 단계로 바뀝니다 (순서와 버튼 글자는 app.js 의 FLOW).",
+    "after_relics = 유실물 여섯 개를 다 회수해 해원 연출을 본 뒤의 반응 (체험 순서와는 상관없음).",
     "after_ritual_beat = 굿판에서 벼리 기록을 넘긴 사람에게는, 같은 디코더(who)의 줄이 이것으로 바뀌어 나옵니다.",
     "프로필 · 반신 그림은 speakers의 이름표(ara, byeori)로 assets/decoder/ 에서 찾습니다."
   ],
@@ -62,5 +63,9 @@
   ],
   "after_log": [
     { "type": "msg", "who": "ara", "text": "기록 확인했어요. 오늘 접속해 주셔서 고마워요, {admin}." }
+  ],
+  "after_relics": [
+    { "type": "msg", "who": "ara", "text": "…다 들어 주셨네요. 이제 이 기억들, 보내 줄 수 있어요." },
+    { "type": "msg", "who": "byeori", "text": "헐 진짜 다 모았어?? 관리자 좀 하는데? ★" }
   ]
 }

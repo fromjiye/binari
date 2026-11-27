@@ -144,6 +144,9 @@
     segs.textContent = '';
     ITEMS.forEach(function (item) { segs.appendChild(el('i', has(item) ? 'on' : '')); });
     api.count = n; // 나중에 인증서에 씀
+    // 해원 연출을 본 뒤에는 '회수 6 / 6' 옆에 "해원 완료" 가 계속 남는다
+    var hw = $('inv-hw-done');
+    if (hw) { hw.textContent = HW_TEXT.done; hw.hidden = !(forced ? forced.haewon : load().haewon); }
   }
 
   // 잠긴 칸의 안내: 실물은 찾아보세요, 그 밖은 회수 경로(아직 없는 앱이면 STANDBY)
@@ -281,6 +284,7 @@
           render();
           highlight(item.no);
           resolve();
+          maybeHaewon(); // 이것이 여섯 번째였으면 해원 연출
         }, 1100);
       }
       if (stopAt != null && stopAt < 1) { setProgress(stopAt); resolve(); return; } // 캡처용: 중간에서 멈춤
@@ -327,11 +331,116 @@
     if (foot) { foot.hidden = !(B.flow && B.flow.next().module); root.classList.toggle('has-foot', !foot.hidden); }
     handleTag();
     handlePending();
+    maybeHaewon(); // 이미 여섯 개가 다 있는데 아직 연출을 못 본 경우
   }
   function close() {
     closeDetail();
     if (!unlocking) unlockEl.hidden = true;
+    if (hwPlaying) endHaewon(); // 연출 도중에 화면을 나가면 본 것으로 치고 끝냄
   }
+
+  // ══════════════ 유실물 6/6 — 해원(解冤) ══════════════
+  // 여섯 개를 다 회수한 순간(여섯 번째 회수 연출이 끝난 직후) 한 번만. 다시 보기 없음. 탭하면 건너뜀
+  // ① 여섯 그림이 가운데로 모임 → ② 각자의 오방색 빛이 되어 연꽃으로 겹침 → ③ 빛이 걷히고 붉은 댕기만 남아 위로 올라가며 사라짐
+  // → ④ 마고 OS 로그 한 줄 → ⑤ 끝나면 '회수 6 / 6' 옆에 "해원 완료"
+  // 시각(ms)은 여기서 고친다. 전체 = show + gather + glow + hold + clear + rise + end (지금 5.05초)
+  // show = 여섯 그림이 둘레에 놓여 있는 시간 / logAt = 댕기가 올라가기 시작한 뒤 로그가 뜨기까지
+  var HW = { show: 400, gather: 700, glow: 800, hold: 500, clear: 450, rise: 1400, logAt: 500, end: 800 };
+  var HW_TEXT = { log: '처리 보류 데이터 6건 · 분류 변경: 해원(解冤)', done: '해원 완료' };
+  // 유실물마다: 연꽃의 어느 조각이 되는지(연꽃 그림의 path 순서) · 모일 자리(가운데에서 px)
+  var HW_MAP = {
+    '01': { parts: [7], to: [0, -8] },          // 가운데 꽃잎 (끝에 남는 댕기)
+    '02': { parts: [0], to: [-46, 26] },        // 왼쪽 안 꽃잎
+    '03': { parts: [3], to: [46, 26] },         // 오른쪽 안 꽃잎
+    '04': { parts: [5], to: [70, 52] },         // 오른쪽 바깥 꽃잎
+    '05': { parts: [2], to: [-70, 52] },        // 왼쪽 바깥 꽃잎
+    '06': { parts: [1, 4, 6, 8], to: [0, 56] }  // 안쪽 작은 조각들
+  };
+  var hwEl = $('inv-haewon'), hwPlaying = false, hwTimers = [], hwDry = false;
+  function allGot(v) { for (var i = 0; i < ITEMS.length; i++) if (!v[ITEMS[i].key]) return false; return true; }
+  function maybeHaewon() {
+    if (unlocking || hwPlaying || forced || !hwEl) return;
+    var v = load();
+    if (v.haewon || !allGot(v)) return;
+    playHaewon(false);
+  }
+  function playHaewon(dry) {
+    if (hwPlaying || !hwEl) return;
+    hwPlaying = true; hwDry = !!dry;
+    closeDetail();
+    var reduced = false;
+    try { reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+    var T = reduced ? { show: 200, gather: 200, glow: 300, hold: 600, clear: 200, rise: 400, logAt: 100, end: 900 } : HW;
+    var stage = $('hw-stage'), log = $('hw-log'), NS = 'http://www.w3.org/2000/svg';
+    stage.textContent = '';
+    log.textContent = ''; log.className = 'hw-log';
+    ['gather', 'glow', 'clear', 'rise'].forEach(function (k) { hwEl.style.setProperty('--hw-' + k, T[k] + 'ms'); });
+
+    // 연꽃: 접속 도장에 들어 있는 연꽃 그림의 조각들을 그대로 쓰고, 조각마다 유실물의 오방색을 입힌다
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('class', 'hw-lotus'); svg.setAttribute('viewBox', '134 62 244.5 173.5'); svg.setAttribute('aria-hidden', 'true');
+    var src = document.querySelectorAll('#seal-art g[transform] path');
+    ITEMS.forEach(function (item, i) {
+      HW_MAP[item.no].parts.forEach(function (pi) {
+        if (!src[pi]) return;
+        var p = document.createElementNS(NS, 'path');
+        p.setAttribute('d', src[pi].getAttribute('d'));
+        p.setAttribute('class', 'hw-petal');
+        p.style.color = COLORS[item.color].c;
+        p.style.setProperty('--d', (i * 70) + 'ms');
+        svg.appendChild(p);
+      });
+    });
+    stage.appendChild(svg);
+    // 여섯 그림: 둘레에서 시작해 가운데(각자의 꽃잎 자리)로
+    ITEMS.forEach(function (item, i) {
+      var im = el('img', 'hw-item' + (item.flat ? ' is-flat' : ''));
+      im.src = img(item); im.alt = '';
+      var a = (-90 + i * 60) * Math.PI / 180, to = HW_MAP[item.no].to;
+      im.style.setProperty('--x0', Math.round(Math.cos(a) * 112) + 'px');
+      im.style.setProperty('--y0', Math.round(Math.sin(a) * 112) + 'px');
+      im.style.setProperty('--x1', to[0] + 'px');
+      im.style.setProperty('--y1', to[1] + 'px');
+      im.style.setProperty('--d', (i * 70) + 'ms');
+      stage.appendChild(im);
+    });
+    var ribbon = el('img', 'hw-ribbon'); // 끝에 남는 붉은 댕기 (01 그림 그대로)
+    ribbon.src = img(byNo('01')); ribbon.alt = '';
+    stage.appendChild(ribbon);
+
+    hwEl.setAttribute('data-phase', 'start');
+    hwEl.hidden = false;
+    sfx('relic');
+    var at = T.show;
+    function phase(name, after, sound) {
+      hwTimers.push(setTimeout(function () { hwEl.setAttribute('data-phase', name); if (sound) sfx(sound); }, at));
+      at += after;
+    }
+    phase('gather', T.gather);          // ① 모임
+    phase('glow', T.glow, 'lock');      // ② 오방색 빛 → 연꽃
+    phase('hold', T.hold);
+    phase('clear', T.clear);            // ③ 빛이 걷히고 댕기만
+    hwTimers.push(setTimeout(function () { log.textContent = HW_TEXT.log; log.classList.add('show'); sfx('tick'); }, at + T.logAt)); // ④ 로그
+    phase('rise', T.rise, 'pass');      //    댕기가 올라가며 사라짐
+    hwTimers.push(setTimeout(endHaewon, at + T.end)); // ⑤
+    api._hwAt = at + T.end;
+  }
+  function endHaewon() {
+    if (!hwPlaying) return;
+    hwTimers.forEach(clearTimeout); hwTimers = [];
+    hwPlaying = false;
+    hwEl.hidden = true;
+    hwEl.removeAttribute('data-phase');
+    if (hwDry) { hwDry = false; render(); return; } // 점검용: 기록하지 않음
+    var v = load();
+    if (!v.haewon) {
+      v.haewon = Date.now();
+      save(v);
+      B.emit('relics_done'); // 메신저로 돌아가면 디코더가 반응 (체험 순서 계산에는 넣지 않음)
+    }
+    render();
+  }
+  if (hwEl) hwEl.addEventListener('click', function () { sfx('tap'); endHaewon(); }); // 탭하면 건너뜀
 
   document.addEventListener('binari:screen', function (ev) { if (ev.detail === 'inventory') open(); else close(); });
   if (document.body.getAttribute('data-screen') === 'inventory') open();
@@ -345,6 +454,9 @@
     $('inv-toast').hidden = true;
     var all = {}; ITEMS.forEach(function (it) { all[it.key] = 1; });
     if (name === 'locked') { forced = {}; render(); return; }
+    // 해원 연출 점검: haewon = 연출을 처음부터 재생(기록하지 않음) / haewon-done = 끝난 뒤의 인벤토리
+    if (name === 'haewon') { all.haewon = 0; forced = all; render(); api._freeze = false; playHaewon(true); return; }
+    if (name === 'haewon-done') { all.haewon = 1; forced = all; render(); return; }
     if (name === 'full') { forced = all; render(); return; }
     if (name === 'unlock-mid' || name === 'unlock-end') {
       forced = {}; render();

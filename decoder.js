@@ -8,7 +8,7 @@
   var B = window.BINARI;
   if (!B) return;
 
-  var DATA_URL = 'data/decoder.json?v=4';
+  var DATA_URL = 'data/decoder.json?v=5';
   var KEY = B.keys.decoder;
   var ASSET = 'assets/decoder/';
 
