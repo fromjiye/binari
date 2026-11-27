@@ -59,7 +59,7 @@
   var ROUTES = {
     ritual:  { label: 'RITUAL',  open: true,  go: 'ritual' },
     sync:    { label: 'SYNC',    open: true,  go: 'sync' },
-    archive: { label: 'ARCHIVE', open: false }
+    archive: { label: 'ARCHIVE', open: true,  go: 'archive' }
   };
 
   function img(item) { return 'assets/relic/relic-' + item.no + '.webp'; }

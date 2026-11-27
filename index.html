@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=18">
+<link rel="stylesheet" href="style.css?v=20">
 </head>
 <body data-role="admin">
 
@@ -108,8 +108,9 @@
         <li class="is-open"><button type="button" class="m-link" data-go="decoder" aria-label="DECODER 디코더 메신저 열기"></button><span class="m-no">01</span><span class="m-en">DECODER</span><span class="m-ko">디코더 메신저</span><span class="m-st">OPEN</span></li>
         <li class="is-open"><button type="button" class="m-link" data-go="ritual" aria-label="RITUAL 디지털 굿판 열기"></button><span class="m-no">02</span><span class="m-en">RITUAL</span><span class="m-ko">디지털 굿판</span><span class="m-st">OPEN</span></li>
         <li class="is-open"><button type="button" class="m-link" data-go="sync" aria-label="SYNC 공명 접속 열기"></button><span class="m-no">03</span><span class="m-en">SYNC</span><span class="m-ko">공명 접속</span><span class="m-st">OPEN</span></li>
-        <li class="is-open"><button type="button" class="m-link" data-go="inventory" aria-label="INVENTORY 유실물 인벤토리 열기"></button><span class="m-no">04</span><span class="m-en">INVENTORY</span><span class="m-ko">유실물 인벤토리</span><span class="m-st">OPEN</span></li>
-        <li id="m-log"><button type="button" class="m-link" data-go="log" aria-label="LOG 접속 기록 열기" hidden></button><span class="m-no">05</span><span class="m-en">LOG</span><span class="m-ko">접속 기록</span><span class="m-st">STANDBY</span></li>
+        <li class="is-open"><button type="button" class="m-link" data-go="archive" aria-label="ARCHIVE 기록 보관소 열기"></button><span class="m-no">04</span><span class="m-en">ARCHIVE</span><span class="m-ko">기록 보관소</span><span class="m-st">OPEN</span></li>
+        <li class="is-open"><button type="button" class="m-link" data-go="inventory" aria-label="INVENTORY 유실물 인벤토리 열기"></button><span class="m-no">05</span><span class="m-en">INVENTORY</span><span class="m-ko">유실물 인벤토리</span><span class="m-st">OPEN</span></li>
+        <li id="m-log"><button type="button" class="m-link" data-go="log" aria-label="LOG 접속 기록 열기" hidden></button><span class="m-no">06</span><span class="m-en">LOG</span><span class="m-ko">접속 기록</span><span class="m-st">STANDBY</span></li>
       </ul>
       <p class="note">모듈을 준비하고 있습니다. 곧 열립니다.</p>
     </section>
@@ -289,6 +290,42 @@
     </div>
   </section>
 
+  <!-- ARCHIVE — 기록 보관소 -->
+  <section class="screen archive" id="archive" hidden>
+    <header class="chat-head">
+      <button type="button" class="back" id="ar-back" data-go="home" aria-label="홈으로 나가기"><span aria-hidden="true">‹</span> <b id="ar-back-label">홈</b></button>
+      <div class="chat-title">
+        <p class="chat-en">ARCHIVE</p>
+        <p class="chat-ko">기록 보관소</p>
+      </div>
+      <p class="rt-step" id="ar-step"></p>
+      <span class="snd">
+        <button type="button" class="snd-btn" data-bgm hidden aria-pressed="false"><span aria-hidden="true">♪</span></button>
+        <button type="button" class="snd-btn" data-sound aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="s" d="M4 9h4l5-4v14l-5-4H4z"/><path class="w" d="M16 9.5c1.3 1.3 1.3 3.7 0 5M18.6 7c2.7 2.7 2.7 7.3 0 10"/><path class="x" d="M16.5 9.5l5 5m0-5l-5 5"/></svg></button>
+      </span>
+    </header>
+
+    <!-- 파일 목록 -->
+    <div class="ar-view" id="ar-list">
+      <h2 class="sec-head">FILES <span id="ar-count"></span></h2>
+      <ol class="ar-files" id="ar-files"></ol>
+    </div>
+
+    <!-- 파일 읽기 -->
+    <div class="ar-view" id="ar-read" hidden>
+      <article class="ar-doc" id="ar-doc">
+        <p class="ar-doc-no" id="ar-doc-no"></p>
+        <h1 class="ar-doc-name" id="ar-doc-name"></h1>
+        <div class="ar-body" id="ar-body"></div>
+        <span class="ar-tail" id="ar-tail" aria-hidden="true"></span>
+      </article>
+      <div class="ar-end" id="ar-end" hidden>
+        <p class="ar-unlock" id="ar-unlock" hidden></p>
+        <button type="button" class="sy-main" id="ar-next" hidden></button>
+      </div>
+    </div>
+  </section>
+
   <!-- INVENTORY — 유실물 인벤토리 -->
   <section class="screen inventory" id="inventory" hidden>
     <header class="chat-head">
@@ -436,13 +473,14 @@
 
 <noscript><p class="noscript">MAGO OS 관리자 콘솔 — 접속 준비 중입니다.</p></noscript>
 <script src="config.js?v=5"></script>
-<script src="app.js?v=18"></script>
+<script src="app.js?v=19"></script>
 <script src="sound.js?v=4"></script>
 <script src="decoder.js?v=4"></script>
 <script src="ritual.js?v=8"></script>
 <script src="inventory.js?v=6"></script>
 <script src="cert.js?v=3"></script>
 <script src="sync.js?v=5"></script>
+<script src="archive.js?v=4"></script>
 <script src="log.js?v=3"></script>
 </body>
 </html>

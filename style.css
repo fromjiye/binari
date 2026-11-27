@@ -1829,3 +1829,196 @@ img.is-flat {
   .sy-result.is-anomaly .sy-ghost, .sy-result.is-anomaly .sy-file .sec-head { animation: none !important; }
   .sy-prog-bar i { transition: none; }
 }
+
+/* ══════════════ ARCHIVE — 기록 보관소 ══════════════ */
+.archive { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; padding: 0; }
+.archive[hidden] { display: none; }
+.archive .back b { font-weight: inherit; }
+.ar-view { flex: 1; display: flex; flex-direction: column; padding: 18px 20px calc(28px + env(safe-area-inset-bottom)); }
+.ar-view[hidden] { display: none; }
+
+/* 파일 목록 */
+.ar-file { border-bottom: 1px solid var(--line); }
+.ar-file button {
+  display: grid;
+  grid-template-columns: 58px 1fr auto;
+  align-items: center;
+  column-gap: 10px;
+  width: 100%;
+  min-height: 60px;
+  padding: 9px 0;
+  text-align: left;
+}
+.ar-f-no { font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em; color: var(--accent); }
+.ar-f-name { font-family: var(--mono); font-size: 15px; font-weight: 600; letter-spacing: 0.08em; line-height: 1.35; }
+.ar-f-st {
+  padding: 3px 7px;
+  border: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: var(--dim);
+}
+.ar-file.is-open .ar-f-st { border-color: var(--accent); background: var(--accent); color: var(--ink); font-weight: 600; }
+.ar-file.is-read .ar-f-st { border-color: rgba(var(--a), 0.55); color: var(--accent); }
+.ar-file.is-locked button { cursor: default; }
+.ar-file.is-locked .ar-f-no,
+.ar-file.is-locked .ar-f-name { color: #4b5558; }
+.ar-file.is-locked .ar-f-st { color: #5d686b; }
+.ar-file.is-new { animation: ar-new 1.1s ease-out; }
+@keyframes ar-new {
+  0%, 40% { background: rgba(var(--a), 0.2); box-shadow: inset 3px 0 0 var(--accent); }
+  100% { background: transparent; box-shadow: inset 3px 0 0 transparent; }
+}
+/* 시연 파일: 열린 뒤에는 흑백 */
+.ar-file.is-anomaly:not(.is-locked) .ar-f-no,
+.ar-file.is-anomaly:not(.is-locked) .ar-f-name { color: #c9cdcf; }
+.ar-file.is-anomaly.is-read .ar-f-st { border-color: rgba(201, 205, 207, 0.5); color: #c9cdcf; }
+.ar-file.is-anomaly.is-open .ar-f-st { border-color: #c9cdcf; background: #c9cdcf; }
+.ar-file.is-anomaly:not(.is-locked) .ar-f-name { animation: sy-flick 2.4s steps(2) infinite; }
+
+/* 파일 읽기 */
+.ar-doc {
+  position: relative;
+  padding: 16px 16px 20px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+.ar-doc::before, .ar-doc::after {
+  content: "";
+  position: absolute;
+  width: 14px; height: 14px;
+  border: 2px solid var(--accent);
+  pointer-events: none;
+}
+.ar-doc::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+.ar-doc::after { right: -1px; bottom: -1px; border-left: 0; border-top: 0; }
+.ar-doc-no { font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: 0.16em; color: var(--accent); }
+.ar-doc-name {
+  margin-top: 2px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+}
+.ar-body { display: flex; flex-direction: column; gap: 15px; margin-top: 16px; }
+.ar-b { opacity: 0; transform: translateY(6px); transition: opacity 0.32s ease-out, transform 0.32s ease-out; }
+.ar-b.is-in { opacity: 1; transform: none; }
+.ar-b.is-still { transition: none; }
+.ar-p { font-size: 15.5px; line-height: 1.8; word-break: keep-all; }
+.ar-tail { display: block; height: 1px; }
+.ar-sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* 시스템 줄 — 경고지만 빨강은 쓰지 않음 */
+.ar-code {
+  align-self: flex-start;
+  padding: 8px 10px;
+  border: 1px dashed rgba(var(--a), 0.5);
+  background: rgba(var(--a), 0.06);
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-size: min(12.5px, 3.3vw);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  color: var(--accent);
+}
+
+/* 벼리의 낙서: 밑줄 + 손글씨 메모 (오렌지) */
+.ar-mark { position: relative; display: inline-block; white-space: nowrap; }
+.ar-mark svg { position: absolute; left: -3px; right: -3px; bottom: -7px; width: calc(100% + 6px); height: 9px; overflow: visible; pointer-events: none; clip-path: inset(-60% 100% -60% -4%); }
+.ar-mark path {
+  fill: none;
+  stroke: var(--byeori);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.ar-body.is-scribbled .ar-mark svg { clip-path: inset(-60% -4% -60% -4%); transition: clip-path 0.5s ease-out; }
+.ar-memo {
+  position: relative;
+  z-index: 2;
+  width: 88%;
+  margin: -12px -22px -4px auto;
+}
+.ar-b.ar-memo { opacity: 1; transform: rotate(-3deg); transition: none; clip-path: inset(-10% 100% -10% -10%); }
+.ar-b.ar-memo.is-in { clip-path: inset(-10% -10% -10% -10%); transition: clip-path 1s steps(16) 0.35s; }
+.ar-b.ar-memo.is-still { transition: none; }
+.ar-memo img { display: block; width: 100%; height: auto; }
+
+/* FILE 05 내부 커뮤니티 로그 */
+.ar-log { padding-left: 12px; border-left: 2px solid var(--accent); }
+.ar-log b { display: block; margin-bottom: 1px; font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: 0.12em; color: var(--dim); }
+.ar-log .ar-p { font-size: 15px; line-height: 1.75; }
+.ar-log[data-who="byeori"] { border-left-color: #f26a1b; }
+.ar-log[data-who="byeori"] b { color: #f26a1b; }
+.ar-log[data-who="ara"] { border-left-color: #4e5ce4; }
+.ar-log[data-who="ara"] b { color: #8a94f2; }
+.ar-log[data-who="mujin"] { border-left-color: #2e7564; }
+.ar-log[data-who="mujin"] b { color: #5fae9b; }
+.ar-log[data-who="siyeon"] { border-left-color: #c9cdcf; }
+.ar-log[data-who="siyeon"] b { color: #c9cdcf; }
+.ar-eol { font-family: var(--mono); font-size: 12px; letter-spacing: 0.16em; color: var(--dim); }
+.ar-eol i { animation: ar-blink 1s steps(2) infinite; }
+@keyframes ar-blink { 50% { opacity: 0; } }
+
+/* 시연 글리치 (흑백) — 글자 자리는 그대로, 일부 글자만 막대로 가려짐 */
+.ar-g { color: #c9cdcf; }
+.ar-g i.x { color: transparent; background: #c9cdcf; }
+.ar-g i.y { color: transparent; background: repeating-linear-gradient(90deg, #c9cdcf 0 2px, transparent 2px 4px); }
+.ar-g i.z { color: transparent; text-shadow: 3px 2px 0 rgba(201, 205, 207, 0.55); }
+.ar-log.is-anomaly .ar-p, .ar-doc.is-anomaly .ar-p { animation: ar-jit 3.2s steps(1) infinite; }
+.ar-doc.is-anomaly .ar-p:nth-child(2) { animation-duration: 4.1s; animation-delay: -1.3s; }
+@keyframes ar-jit {
+  0%, 100% { transform: none; }
+  11% { transform: translateX(-3px); }
+  13% { transform: translateX(2px) skewX(-6deg); }
+  15% { transform: none; }
+  62% { transform: translateX(4px); }
+  64% { transform: none; }
+}
+.ar-doc.is-anomaly { border-color: rgba(201, 205, 207, 0.4); }
+.ar-doc.is-anomaly::before, .ar-doc.is-anomaly::after { border-color: #c9cdcf; }
+.ar-doc.is-anomaly .ar-doc-no { color: #c9cdcf; }
+.ar-doc.is-anomaly .ar-doc-name { border-bottom-color: rgba(201, 205, 207, 0.3); }
+
+/* FILE 08 유실물 기록 */
+.ar-item { padding: 14px 14px 15px; border: 1px solid rgba(var(--a), 0.55); background: rgba(var(--a), 0.06); }
+.ar-item-head {
+  display: inline-block;
+  padding: 3px 8px;
+  background: var(--accent);
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.ar-item-no { margin-top: 12px; font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: 0.16em; color: var(--accent); }
+.ar-item-name { margin-top: 1px; font-size: 20px; font-weight: 700; line-height: 1.35; }
+.ar-item-cls { display: flex; align-items: center; gap: 7px; margin-top: 8px; font-size: 14.5px; }
+.ar-chip { flex: none; width: 11px; height: 11px; background: #f0b90b; }
+.ar-item-st { margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.04em; color: var(--dim); }
+
+/* 끝까지 읽은 뒤 */
+.ar-end { margin-top: 16px; }
+.ar-unlock {
+  padding: 10px 12px;
+  border: 1px solid rgba(var(--a), 0.6);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-align: center;
+  color: var(--accent);
+}
+.ar-end.is-fresh .ar-unlock { animation: ar-new 1.1s ease-out; }
+.ar-end .sy-main { width: 100%; margin-top: 12px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ar-b, .ar-b.ar-memo.is-in, .ar-mark svg { transition: none !important; }
+  .ar-file.is-new, .ar-end.is-fresh .ar-unlock, .ar-eol i,
+  .ar-file.is-anomaly:not(.is-locked) .ar-f-name,
+  .ar-log.is-anomaly .ar-p, .ar-doc.is-anomaly .ar-p { animation: none !important; }
+}
