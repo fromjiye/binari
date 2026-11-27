@@ -26,7 +26,7 @@
     headAnomalySub: '[STATUS: ANOMALY]',
     file: 'DECODER FILE // ',
     again: '다시 스캔',
-    home: '홈으로 돌아가기',
+    home: '메신저로 돌아가기',
     collect: '유실물 회수하기',   // 첫 완료로 03번 연출이 대기 중일 때만
     holdIOS: '이미지를 길게 눌러 ‘사진 앱에 저장’을 선택하세요.',
     hold: '이미지를 길게 눌러 저장하세요.',

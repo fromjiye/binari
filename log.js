@@ -186,6 +186,7 @@
         if (!row || !row.created_at) row = { id: 'me' + Date.now(), created_at: new Date().toISOString(), name: name, message: msg, admin_id: body.admin_id, booth: body.booth };
         sending = false;
         remember({ name: name, last: Date.now() });
+        B.emit('log_done'); // 메신저로 돌아가면 디코더가 반응
         // 쓰자마자 맨 위에 보이게
         loaded = true;
         fresh[row.id] = true;

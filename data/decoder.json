@@ -5,7 +5,8 @@
     "enter = 반신 누끼 + 이름표 등장 / msg = 말풍선 한 개 / choice = 선택지(고른 답의 reply가 이어서 나옴)",
     "hack_start · hack_end = 벼리 해킹 낙서 시작 · 끝 / highlight_mission = '임무 바로 가기' 버튼 강조",
     "{admin} 은 id가 있으면 '○○○ 관리자님', 없으면 '관리자님'으로 바뀝니다.",
-    "after_ritual = 굿판을 마치고 메신저로 돌아왔을 때 나오는 반응. 같은 식으로 after_sync 를 추가하면 동기화 테스트 뒤 반응이 됩니다.",
+    "after_ritual · after_sync · after_archive · after_log = 굿판 · 공명 접속 · 기록 보관소 · 접속 기록을 마치고 메신저로 돌아왔을 때 나오는 반응 (2026-11-28 지예 확인본).",
+    "반응이 다 나오면 아래 버튼이 체험 순서의 다음 단계로 바뀝니다 (순서와 버튼 글자는 app.js 의 FLOW).",
     "after_ritual_beat = 굿판에서 벼리 기록을 넘긴 사람에게는, 같은 디코더(who)의 줄이 이것으로 바뀌어 나옵니다.",
     "프로필 · 반신 그림은 speakers의 이름표(ara, byeori)로 assets/decoder/ 에서 찾습니다."
   ],
@@ -45,9 +46,21 @@
   ],
   "after_ritual": [
     { "type": "msg", "who": "ara", "text": "수고했어요, {admin}. 방금 그 데이터… 이제 조금은 편해졌을 거예요." },
-    { "type": "msg", "who": "byeori", "text": "점수 봤음. 음… 나쁘지 않네? 내 기록엔 아직 멀었지만 ★" }
+    { "type": "msg", "who": "byeori", "text": "점수 봤음. 음… 나쁘지 않네? 내 기록엔 아직 멀었지만 ★" },
+    { "type": "msg", "who": "ara", "text": "다음은 공명 접속이에요. 질문 몇 개면 {admin}과 주파수가 맞는 디코더를 찾을 수 있어요." }
   ],
   "after_ritual_beat": [
     { "type": "msg", "who": "byeori", "text": "헐 내 기록 깼어?? …인정. 근데 다음엔 안 봐줌 ★" }
+  ],
+  "after_sync": [
+    { "type": "msg", "who": "byeori", "text": "누구랑 맞았어? 나 아니면 좀 서운한데 ㅋ" },
+    { "type": "msg", "who": "ara", "text": "이제 기록 보관소로 가 볼까요? 잠긴 파일이 여덟 개 있어요. 순서대로 열어 주세요." }
+  ],
+  "after_archive": [
+    { "type": "msg", "who": "ara", "text": "끝까지 읽으셨네요. …이제 저희가 왜 지우지 않고 푸는지 아시겠죠." },
+    { "type": "msg", "who": "byeori", "text": "마지막으로 접속 기록에 이름 남기고 가~ 내가 다 볼 거임 ★" }
+  ],
+  "after_log": [
+    { "type": "msg", "who": "ara", "text": "기록 확인했어요. 오늘 접속해 주셔서 고마워요, {admin}." }
   ]
 }

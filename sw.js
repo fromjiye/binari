@@ -8,7 +8,7 @@
    · 그림 · 대사 데이터 : 받아 둔 것을 바로 쓰고, 뒤에서 새것이 있는지 확인해 갈아 둠
    · 폰트(Google Fonts) : 받아 둔 것을 씀. 사이트 글에 쓰인 글자의 폰트 조각을 미리 받아 둠 */
 
-var CACHE = 'binari-site-v1';
+var CACHE = 'binari-site-v2'; // 그림을 같은 이름으로 바꿨을 때는 이 숫자를 올린다 (받아 둔 것을 새로 받게)
 var FONTS = 'binari-fonts-v1';
 var INDEX = new URL('./', self.registration.scope).href;
 var NET_TIMEOUT = 3500; // 첫 화면을 인터넷에서 기다리는 시간(ms). 넘으면 받아 둔 것으로 연다

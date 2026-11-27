@@ -33,6 +33,7 @@
     unlocked: '잠금 해제',
     next: '다음 파일 열기',
     collect: '유실물 회수하기',     // 굿판 · SYNC 와 같은 문구
+    toDecoder: '메신저로 돌아가기 ▸', // 8개를 다 읽은 뒤
     itemOpen: '회수 기록 해제',     // 인벤토리와 같은 문구
     itemDone: '회수 완료',
     memoBy: '벼리의 메모: '
@@ -123,6 +124,7 @@
     backBtn.setAttribute('aria-label', '홈으로 나가기');
     var n = done();
     countEl.textContent = TEXT.read + ' ' + n + ' / ' + TOTAL;
+    $('ar-done').hidden = n < TOTAL; // 8개를 다 읽으면: 메신저로 돌아가기
     filesEl.textContent = '';
     FILES.forEach(function (f, i) {
       var k = i + 1;
@@ -362,8 +364,8 @@
       }
       nextBtn.textContent = TEXT.next;
       nextBtn.hidden = false;
-    } else if (relicPending()) {
-      nextBtn.textContent = TEXT.collect;
+    } else { // 마지막 파일: 회수 연출이 남아 있으면 인벤토리로, 아니면 메신저로
+      nextBtn.textContent = relicPending() ? TEXT.collect : TEXT.toDecoder;
       nextBtn.hidden = false;
     }
     endEl.hidden = unlockEl.hidden && nextBtn.hidden;
@@ -382,7 +384,7 @@
 
   nextBtn.addEventListener('click', function () {
     sfx('tap');
-    if (current === TOTAL) { B.go('inventory'); return; }
+    if (current === TOTAL) { B.go(relicPending() ? 'inventory' : 'decoder'); return; }
     openFile(current + 1);
   });
 

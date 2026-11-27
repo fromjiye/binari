@@ -120,6 +120,41 @@
     list.push(ev);
     writeEvents(list.slice(-20));
   }
+  // ── 체험 순서: DECODER → RITUAL → SYNC → ARCHIVE → LOG → 인증서 (부스는 LOG 까지. INVENTORY 는 순서에 없음) ──
+  // 끝냈는지는 모듈이 남긴 알림(ritual_done …)으로 본다. 알림이 밀려 사라진 경우를 대비해 저장된 기록도 같이 본다
+  var FLOW = [
+    { key: 'ritual',  ev: 'ritual_done',  label: '임무 바로 가기',          store: 'binari.best.v1',    test: function (v) { return v.score != null; } },
+    { key: 'sync',    ev: 'sync_done',    label: '다음 임무 · 공명 접속',   store: 'binari.sync.v1',    test: function (v) { return !!v.d; } },
+    { key: 'archive', ev: 'archive_done', label: '다음 임무 · 기록 보관소', store: 'binari.archive.v1', test: function (v) { return v.n >= 8; } },
+    { key: 'log',     ev: 'log_done',     label: '접속 기록 남기기',        store: 'binari.log.v1',     test: function (v) { return !!v.last; } }
+  ];
+  var FLOW_END = { cert: '인증서 발급', restart: '처음 화면으로' }; // 다 끝낸 뒤: 폰은 인증서, 부스는 처음 화면
+  function flowNext() {
+    var events = readEvents(), g = (window.BINARI_CONFIG && window.BINARI_CONFIG.guestbook) || {};
+    var logOpen = !!(g.supabaseUrl && g.supabaseKey);
+    for (var i = 0; i < FLOW.length; i++) {
+      var s = FLOW[i];
+      if (s.key === 'log' && !logOpen) continue; // LOG 가 STANDBY 면 건너뜀
+      var done = events.some(function (e) { return e && e.e === s.ev; });
+      if (!done) { try { var v = JSON.parse(localStorage.getItem(s.store)); done = !!(v && s.test(v)); } catch (e) {} }
+      if (!done) return { key: s.key, go: s.key, label: s.label, module: true };
+    }
+    return BOOTH ? { key: 'restart', go: null, label: FLOW_END.restart, module: false }
+                 : { key: 'cert', go: 'cert', label: FLOW_END.cert, module: false };
+  }
+  // 홈 메뉴: 다음 단계인 모듈 칸만 상태 글자를 NEXT 로 (INVENTORY 에는 붙이지 않음)
+  function markNext() {
+    var next = flowNext(), items = document.querySelectorAll('.modules li');
+    for (var i = 0; i < items.length; i++) {
+      var li = items[i], link = li.querySelector('.m-link'), st = li.querySelector('.m-st');
+      if (!link || !st) continue;
+      var open = li.className.indexOf('is-open') >= 0;
+      var on = open && next.module && link.getAttribute('data-go') === next.go;
+      li.classList.toggle('is-next', on);
+      if (open) st.textContent = on ? 'NEXT' : 'OPEN';
+    }
+  }
+
   // 효과음 (sound.js 가 준비되어 있고 켜져 있을 때만 남)
   function sfx(name) { if (window.BINARI && window.BINARI.sound) window.BINARI.sound.play(name); }
 
@@ -233,7 +268,9 @@
     wait.addEventListener('click', function () { wipe(); begin(); });
     // 안쪽 화면이 조작을 알려 오면 시간을 다시 잰다
     window.addEventListener('message', function (ev) {
-      if (ev.origin === location.origin && ev.data && ev.data.type === 'binari-activity') poke();
+      if (ev.origin !== location.origin || !ev.data) return;
+      if (ev.data.type === 'binari-activity') poke();
+      if (ev.data.type === 'binari-restart') { wipe(); begin(); } // 메신저의 "처음 화면으로": 기록을 지우고 첫 접속 탭 화면부터
     });
     document.addEventListener('pointerdown', poke, true);
 
@@ -496,6 +533,7 @@
     readEvents: readEvents,
     writeEvents: writeEvents,
     keys: { decoder: KEY_DECODER },
+    flow: { next: flowNext }, // 체험 순서의 다음 단계
     booth: BOOTH,
     inApp: inApp, // 인앱 브라우저 종류 (없으면 null)
     // 인증서(cert.js)가 쓰는 카드 정보 — 홈 카드와 같은 값
@@ -519,6 +557,8 @@
 
   fillCard();
   fillHome();
+  document.addEventListener('binari:screen', function (ev) { if (ev.detail === 'home') markNext(); });
+  window.addEventListener('load', markNext); // LOG 칸은 log.js 가 열어 준 뒤에 맞춰야 해서 한 번 더
 
   if (mode === 'home') {
     // relic로 처음 들어온 경우에는 기억하지 않는다 (다음 정식 접속 때 부팅을 보여 주기 위해)

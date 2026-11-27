@@ -683,6 +683,9 @@ body[data-scan] .ring::before { animation: spin 18s linear infinite; }
 .modules li { position: relative; }
 .m-link { position: absolute; inset: 0; z-index: 1; }
 .modules li.is-open .m-st { border-color: var(--accent); color: var(--accent); }
+/* 체험 순서의 다음 단계: 상태 글자가 NEXT (강조색으로 채움) */
+.modules li.is-next .m-st { background: var(--accent); color: var(--ink); font-weight: 600; }
+.modules li.is-next .m-en { color: var(--accent); }
 
 /* ══════════════ DECODER — 디코더 메신저 ══════════════ */
 .chat,
@@ -2051,3 +2054,7 @@ img.is-flat {
   .ar-file.is-anomaly:not(.is-locked) .ar-f-name,
   .ar-log.is-anomaly .ar-p, .ar-doc.is-anomaly .ar-p { animation: none !important; }
 }
+
+/* 체험 순서: 인벤토리 · ARCHIVE 아래의 메신저 버튼 */
+.inv-next { margin-top: 20px; }
+.ar-view .sy-main { width: 100%; margin-top: 22px; }

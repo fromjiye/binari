@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=23">
+<link rel="stylesheet" href="style.css?v=24">
 </head>
 <body data-role="admin">
 
@@ -253,7 +253,7 @@
       </section>
       <div class="rs-actions">
         <button type="button" class="rs-btn" id="sy-again">다시 스캔</button>
-        <button type="button" class="rs-btn is-main" id="sy-leave" data-go="home">홈으로 돌아가기</button>
+        <button type="button" class="rs-btn is-main" id="sy-leave" data-go="decoder">메신저로 돌아가기</button>
       </div>
     </div>
   </section>
@@ -309,6 +309,7 @@
     <div class="ar-view" id="ar-list">
       <h2 class="sec-head">FILES <span id="ar-count"></span></h2>
       <ol class="ar-files" id="ar-files"></ol>
+      <button type="button" class="sy-main" id="ar-done" data-go="decoder" hidden>메신저로 돌아가기 <span aria-hidden="true">▸</span></button>
     </div>
 
     <!-- 파일 읽기 -->
@@ -344,6 +345,7 @@
     <div class="inv-body">
       <p class="inv-top"><span>회수</span><b id="inv-count">0 / 6</b><span class="inv-segs" id="inv-segs" aria-hidden="true"></span></p>
       <ul class="inv-grid" id="inv-grid"></ul>
+      <button type="button" class="mission inv-next" id="inv-next" data-go="decoder" hidden>메신저로 가기 <span aria-hidden="true">▸</span></button>
     </div>
 
     <p class="inv-toast" id="inv-toast" role="status" hidden></p>
@@ -480,14 +482,14 @@
 
 <noscript><p class="noscript">MAGO OS 관리자 콘솔 — 접속 준비 중입니다.</p></noscript>
 <script src="config.js?v=5"></script>
-<script src="app.js?v=19"></script>
+<script src="app.js?v=20"></script>
 <script src="sound.js?v=4"></script>
-<script src="decoder.js?v=4"></script>
-<script src="ritual.js?v=10"></script>
-<script src="inventory.js?v=7"></script>
+<script src="decoder.js?v=6"></script>
+<script src="ritual.js?v=11"></script>
+<script src="inventory.js?v=8"></script>
 <script src="cert.js?v=3"></script>
-<script src="sync.js?v=6"></script>
-<script src="archive.js?v=5"></script>
-<script src="log.js?v=3"></script>
+<script src="sync.js?v=7"></script>
+<script src="archive.js?v=6"></script>
+<script src="log.js?v=4"></script>
 </body>
 </html>

@@ -8,7 +8,7 @@
   var B = window.BINARI;
   if (!B) return;
 
-  var DATA_URL = 'data/decoder.json?v=3';
+  var DATA_URL = 'data/decoder.json?v=4';
   var KEY = B.keys.decoder;
   var ASSET = 'assets/decoder/';
 
@@ -138,6 +138,29 @@
     if (titleEn) titleEn.textContent = stamp || TITLE;
   }
 
+  // ── 아래 버튼: 체험 순서의 다음 단계로 가고, 글자도 같이 바뀐다 ──
+  // 굿판 전 "임무 바로 가기" → "다음 임무 · 공명 접속" → "다음 임무 · 기록 보관소" → "접속 기록 남기기" → 폰 "인증서 발급" / 부스 "처음 화면으로"
+  var missionBtn = root.querySelector('.mission');
+  var missionDirty = false; // 반응 대사가 나오는 중: 다 나온 뒤에 버튼 강조를 켠다
+  function syncMission(highlight) {
+    if (!missionBtn || !B.flow) return;
+    var next = B.flow.next();
+    missionBtn.textContent = next.label + ' ';
+    var arrow = el('span', null, '▸');
+    arrow.setAttribute('aria-hidden', 'true');
+    missionBtn.appendChild(arrow);
+    if (next.go) { missionBtn.setAttribute('data-go', next.go); missionBtn.removeAttribute('data-act'); }
+    else { missionBtn.removeAttribute('data-go'); missionBtn.setAttribute('data-act', next.key); }
+    if (highlight) { state.mission = true; save(); }
+    setFlag('data-mission', state.mission);
+  }
+  if (missionBtn) missionBtn.addEventListener('click', function () {
+    if (missionBtn.getAttribute('data-act') !== 'restart') return; // 그 밖에는 data-go 로 이동
+    sfx('tap');
+    try { window.parent.postMessage({ type: 'binari-restart' }, location.origin); } catch (e) {}
+  });
+  syncMission(false);
+
   // ── 저장된 대화를 한 번에 그리기 (다시 들어왔을 때) ──
   function renderLog() {
     logEl.textContent = '';
@@ -190,6 +213,8 @@
     step();
   }
   function step() {
+    // 0) 반응 대사가 다 나왔으면: 아래 버튼을 강조
+    if (!state.queue.length && missionDirty) { missionDirty = false; syncMission(true); }
     // 1) 밀린 말풍선부터
     if (state.queue.length) {
       var m = state.queue[0];
@@ -326,7 +351,7 @@
   // 같은 반응은 한 번만. 굿판에서 벼리 기록을 넘긴 사람은 벼리 줄만 after_ritual_beat 의 것으로 바뀐다
   // (이미 반응을 본 뒤에 처음으로 기록을 넘기면, 벼리의 그 한 줄만 따로 나온다)
   function queueReactions() {
-    var list = B.readEvents(), changed = false;
+    var list = B.readEvents(), changed = false, queued = false;
     if (!state.reacted) state.reacted = {};
     list.forEach(function (ev) {
       if (ev.seen) return;
@@ -348,16 +373,21 @@
         out = beat.filter(function (n) { return n && n.type === 'msg' && n.text; });
         state.reacted[base + '_beat'] = true;
       }
-      out.forEach(function (n) { state.queue.push({ who: n.who || 'ara', text: n.text }); });
+      out.forEach(function (n) { state.queue.push({ who: n.who || 'ara', text: n.text }); queued = true; });
     });
     if (changed) { B.writeEvents(list); save(); }
+    return queued;
   }
 
   // ── 메신저가 열릴 때 ──
   function open() {
     if (!data) return;
     if (!rendered) renderLog();
-    queueReactions();
+    // 아래 버튼은 바로 다음 단계로 바꾸고, 반응 대사가 있으면 그게 다 나온 뒤에 강조를 켠다 (그동안은 끔)
+    var queued = queueReactions();
+    syncMission(false);
+    if (queued) { missionDirty = true; setFlag('data-mission', false); }
+    else if (missionDirty) setFlag('data-mission', false);
     try { new Image().src = speaker('byeori').bust; } catch (e) {}
 
     // 선택지에서 기다리던 중이었으면 다시 보여 줌
