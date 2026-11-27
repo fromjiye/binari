@@ -69,7 +69,7 @@
     blackLife: 2600,
     // 대귀: 마지막 10초에 가운데 하나. 버튼이 아니라 대귀 자체를 연타
     bossLast: 10000,  // 남은 시간이 이만큼일 때 등장 (ms)
-    bossTaps: 12,     // 정화까지 필요한 탭 수
+    bossTaps: 12,     // 정화까지 필요한 탭 수 (그림 크기 · 조각 격자는 아래 BOSS 에서)
     bossScore: 3000   // 정화했을 때 점수
   };
   // 콤보 5마다 배율 +0.5, 최대 x3
@@ -499,30 +499,71 @@
   }
 
   // ── 대귀 ──
-  var BOSS_N = 15, BOSS_S = 13, BOSS_RING = ['#3F6BFF', '#E0392E', '#F0B90B', '#F2F2EC']; // 속(청) → 겉(백)
+  // 확정 대귀 그림(assets/ritual/daegwi.webp, 투명 배경 640×1031)을 정사각형 조각으로 나눠 쓴다.
+  // 탭할 때마다 바깥 조각부터 그림 색 그대로 떨어져 나가고, 마지막 탭에는 남은 그림 전체가 흩어진다.
+  var BOSS = {
+    cols: 18, rows: 29, cell: 32, // 조각 격자. cell = 조각 한 변 (그림을 576×928 로 옮겨 그렸을 때의 px)
+    heightVh: 0.45,               // 그림 높이 = 화면 높이의 이 비율 (판이 그보다 낮으면 판에 맞춤)
+    pad: 14                       // 탭 판정을 그림 사각형보다 이만큼 넉넉하게
+  };
+  var bossArt = { img: new Image(), ready: false, full: null, mask: null };
+  bossArt.img.onload = function () {
+    try {
+      var cv = document.createElement('canvas');
+      cv.width = BOSS.cols * BOSS.cell; cv.height = BOSS.rows * BOSS.cell;
+      var c = cv.getContext('2d');
+      c.drawImage(bossArt.img, 0, 0, cv.width, cv.height);
+      // 조각마다 그림이 들어 있는지 한 번만 계산. 가는 손끝 같은 것도 조각이 되도록 2% 만 넘으면 포함하고,
+      // 그보다 적게 걸친 칸은 지워서 조각이 다 떨어진 뒤에 부스러기가 남지 않게 한다
+      var d = c.getImageData(0, 0, cv.width, cv.height).data, m = [], need = BOSS.cell * BOSS.cell * 0.02;
+      for (var y = 0; y < BOSS.rows; y++) for (var x = 0; x < BOSS.cols; x++) {
+        var n = 0;
+        for (var yy = 0; yy < BOSS.cell; yy += 2) for (var xx = 0; xx < BOSS.cell; xx += 2) {
+          if (d[((y * BOSS.cell + yy) * cv.width + x * BOSS.cell + xx) * 4 + 3] > 32) n += 4;
+        }
+        m.push(n >= need);
+        if (n < need) c.clearRect(x * BOSS.cell, y * BOSS.cell, BOSS.cell, BOSS.cell);
+      }
+      bossArt.full = cv; bossArt.mask = m; bossArt.ready = true;
+    } catch (e) { bossArt.ready = false; }
+  };
+  bossArt.img.src = 'assets/ritual/daegwi.webp';
+
   function makeBoss(now, f) {
-    var r = rnd(Math.floor(Math.random() * 1e6) + 11), cells = [], mid = (BOSS_N - 1) / 2;
-    for (var y = 0; y < BOSS_N; y++) for (var x = 0; x < BOSS_N; x++) {
-      var d = Math.hypot(x - mid, y - mid);
-      if (d < 5.6 || (d < 7.4 && r() > 0.3)) cells.push({ x: x, y: y, d: d, s: r() });
+    var r = rnd(Math.floor(Math.random() * 1e6) + 11), cells = [], mx = (BOSS.cols - 1) / 2, my = (BOSS.rows - 1) / 2;
+    for (var y = 0; y < BOSS.rows; y++) for (var x = 0; x < BOSS.cols; x++) {
+      if (bossArt.ready && !bossArt.mask[y * BOSS.cols + x]) continue;
+      // 가운데에서 먼 조각일수록 d 가 큼 (세로로 긴 그림이라 가로 · 세로를 따로 잼)
+      cells.push({ x: x, y: y, d: Math.hypot((x - mx) / (BOSS.cols / 2), (y - my) / (BOSS.rows / 2)) + r() * 0.1, s: r() });
     }
-    cells.sort(function (a, b) { return a.d - b.d; }); // 바깥 칸이 뒤에 오도록
-    return { cells: cells, parts: [], hp: NORM.bossTaps, born: now, x: f.w / 2, y: f.h * 0.44, state: 'alive', end: 0, hit: 0 };
+    cells.sort(function (a, b) { return a.d - b.d; }); // 바깥 조각이 뒤에 오도록
+    // 남아 있는 그림: 조각이 떨어질 때마다 그 칸을 지운다
+    var cv = document.createElement('canvas');
+    cv.width = BOSS.cols * BOSS.cell; cv.height = BOSS.rows * BOSS.cell;
+    var c = cv.getContext('2d');
+    if (bossArt.ready) c.drawImage(bossArt.full, 0, 0);
+    else { c.fillStyle = '#23243a'; cells.forEach(function (q) { c.fillRect(q.x * BOSS.cell, q.y * BOSS.cell, BOSS.cell - 2, BOSS.cell - 2); }); } // 그림을 아직 못 받았을 때
+    var h = Math.max(120, Math.min((window.innerHeight || f.h) * BOSS.heightVh, f.h - 64)), w = h * BOSS.cols / BOSS.rows;
+    return { cells: cells, parts: [], hp: NORM.bossTaps, born: now, x: f.w / 2, y: f.h * 0.46, w: w, h: h, cv: cv, art: bossArt.ready, state: 'alive', end: 0, hit: 0 };
   }
-  function bossRadius() { return BOSS_N * BOSS_S / 2 + 16; }
   function hitBoss(px, py) {
     var b = nm && nm.boss;
     if (!b || b.state !== 'alive' || nm.over) return false;
-    if (Math.hypot(px - b.x, py - b.y) > bossRadius()) return false;
+    // 탭 판정: 그림 영역 사각형 (조금 넉넉하게)
+    if (Math.abs(px - b.x) > b.w / 2 + BOSS.pad || Math.abs(py - b.y) > b.h / 2 + BOSS.pad) return false;
     var now = performance.now();
     b.hp -= 1; b.hit = now;
-    // 탭할 때마다 바깥 픽셀 한 겹이 떨어져 나감
-    var peel = b.hp <= 0 ? b.cells.length : Math.ceil(b.cells.length / (b.hp + 1));
+    // 탭할 때마다 바깥 조각들이 떨어져 나감. 마지막 탭은 남은 그림 전체
+    var last = b.hp <= 0, peel = last ? b.cells.length : Math.ceil(b.cells.length / (b.hp + 1));
+    var cs = b.w / BOSS.cols, bc = b.cv.getContext('2d');
     for (var i = 0; i < peel && b.cells.length; i++) {
-      var c = b.cells.pop(), mid = (BOSS_N - 1) / 2, a = Math.atan2(c.y - mid, c.x - mid) + (c.s - 0.5);
-      b.parts.push({ x: (c.x - mid) * BOSS_S, y: (c.y - mid) * BOSS_S, vx: Math.cos(a) * (90 + c.s * 120), vy: Math.sin(a) * (90 + c.s * 120), t: now, d: c.d });
+      var c = b.cells.pop();
+      bc.clearRect(c.x * BOSS.cell, c.y * BOSS.cell, BOSS.cell, BOSS.cell);
+      var ox = (c.x + 0.5 - BOSS.cols / 2) * cs, oy = (c.y + 0.5 - BOSS.rows / 2) * cs;
+      var a = Math.atan2(oy, ox) + (c.s - 0.5), v = last ? 110 + c.s * 230 : 90 + c.s * 120;
+      b.parts.push({ cx: c.x, cy: c.y, x: ox, y: oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v, t: now, dur: last ? 620 + c.s * 380 : 520 });
     }
-    if (b.hp <= 0) { // 정화
+    if (last) { // 정화
       b.state = 'pure'; b.end = now;
       nm.score += NORM.bossScore;
       pop('+' + NORM.bossScore, 'is-root');
@@ -532,42 +573,57 @@
     return true;
   }
   function drawBoss(c, b, now) {
+    // 그림이 늦게 도착했으면(아직 한 번도 안 맞았을 때만) 그림으로 다시 만든다
+    if (!b.art && bossArt.ready && b.hp === NORM.bossTaps) {
+      var nb = makeBoss(b.born, nm.field);
+      b.cells = nb.cells; b.cv = nb.cv; b.art = true;
+    }
     var age = now - b.born, grow = Math.min(1, age / 450), e = 1 - Math.pow(1 - grow, 3), alpha = 1;
     if (b.state === 'gone') alpha = Math.max(0, 1 - (now - b.end) / 400);
-    var half = BOSS_N * BOSS_S / 2, mid = (BOSS_N - 1) / 2, tick = Math.floor(now / 110);
-    var shake = Math.max(0, 1 - (now - b.hit) / 140) * 4;
+    var tick = Math.floor(now / 110), cs = b.w / BOSS.cols;
+    var shake = Math.max(0, 1 - (now - b.hit) / 140) * 5;
     c.save();
-    c.translate(b.x + (shake ? (Math.random() - 0.5) * shake * 2 : 0), b.y);
+    c.translate(b.x + (shake ? (Math.random() - 0.5) * shake * 2 : 0), b.y + (shake ? (Math.random() - 0.5) * shake : 0));
     c.scale(0.4 + 0.6 * e, 0.4 + 0.6 * e);
-    function colorOf(d) { return BOSS_RING[Math.min(3, Math.floor(d / 1.9))]; }
-    b.cells.forEach(function (cell) {
-      if (((cell.s * 991 + tick) | 0) % 13 === 0) return; // 깨진 픽셀: 몇 칸이 깜빡임
-      c.globalAlpha = alpha * e * (0.6 + cell.s * 0.4);
-      c.fillStyle = colorOf(cell.d);
-      c.fillRect((cell.x - mid) * BOSS_S - BOSS_S / 2, (cell.y - mid) * BOSS_S - BOSS_S / 2, BOSS_S - 1, BOSS_S - 1);
-    });
+    if (b.cells.length) {
+      c.globalAlpha = alpha * e;
+      c.drawImage(b.cv, -b.w / 2, -b.h / 2, b.w, b.h);
+      // 깨진 픽셀: 그림 위의 몇 칸만 잠깐 비어 보임
+      if (b.state === 'alive' && !api._freeze) {
+        c.globalCompositeOperation = 'destination-out';
+        c.globalAlpha = 1;
+        for (var i = 0; i < b.cells.length; i++) {
+          var q = b.cells[i];
+          if (((q.s * 9973 + tick) | 0) % 127 === 0) c.fillRect((q.x - BOSS.cols / 2) * cs, (q.y - BOSS.rows / 2) * cs, cs, cs);
+        }
+        c.globalCompositeOperation = 'source-over';
+      }
+    }
     var keep = [];
-    b.parts.forEach(function (p) { // 떨어져 나가는 픽셀
-      var k = (now - p.t) / 520;
+    b.parts.forEach(function (p) { // 떨어져 나가는 조각: 그림에서 잘라 낸 정사각형 그대로
+      var k = (now - p.t) / p.dur;
       if (k >= 1 && !api._freeze) return;
       k = Math.min(k, api._freeze ? 0.45 : 1);
       c.globalAlpha = alpha * (1 - k);
-      c.fillStyle = colorOf(p.d);
-      c.fillRect(p.x + p.vx * k - BOSS_S / 2, p.y + p.vy * k + 60 * k * k - BOSS_S / 2, BOSS_S - 1, BOSS_S - 1);
+      var px = p.x + p.vx * k - cs / 2, py = p.y + p.vy * k + 70 * k * k - cs / 2;
+      if (bossArt.ready) c.drawImage(bossArt.full, p.cx * BOSS.cell, p.cy * BOSS.cell, BOSS.cell, BOSS.cell, px, py, cs, cs);
+      else { c.fillStyle = '#23243a'; c.fillRect(px, py, cs - 1, cs - 1); }
       keep.push(p);
     });
     b.parts = keep;
     if (b.state === 'alive') { // 남은 탭
+      var bw = b.w * 0.86;
       c.globalAlpha = alpha * e;
       c.fillStyle = 'rgba(232,238,240,0.25)';
-      c.fillRect(-half, half + 14, half * 2, 3);
+      c.fillRect(-bw / 2, b.h / 2 + 12, bw, 3);
       c.fillStyle = '#e8eef0';
-      c.fillRect(-half, half + 14, half * 2 * (b.hp / NORM.bossTaps), 3);
+      c.fillRect(-bw / 2, b.h / 2 + 12, bw * (b.hp / NORM.bossTaps), 3);
     }
     c.restore();
   }
   function spawnBoss(now, f) {
     nm.boss = makeBoss(now, f);
+    root.setAttribute('data-boss', ''); // 대귀가 있는 동안은 아래 안내 글을 가림
     var al = $('nm-alert');
     al.textContent = TEXT.dread;
     al.hidden = false; al.classList.remove('go'); void al.offsetWidth; al.classList.add('go');
@@ -638,6 +694,7 @@
   function normalization(t) {
     view('norm');
     buildKeys();
+    root.removeAttribute('data-boss');
     $('nm-hint').textContent = TEXT.hintNorm;
     $('nm-root-fx').hidden = true;
     $('nm-pop').className = 'nm-pop';
@@ -870,6 +927,7 @@
     var t = token;
     stopLoop(); hum().stop();
     api._freeze = true;
+    root.removeAttribute('data-boss');
     run = { perfect: 2, startSync: 25, score: 0, maxCombo: 0, roots: 0 };
     if (name === 'card') { stageCard(0, t); return; }
     if (name === 'res') {
@@ -910,7 +968,7 @@
       if (name === 'root') setTimeout(function () { rootAccess(); }, 60);
       return;
     }
-    if (name === 'boss' || name === 'boss-hit' || name === 'cheer10' || name === 'cheer20') {
+    if (name === 'boss' || name === 'boss-hit' || name === 'boss-down' || name === 'cheer10' || name === 'cheer20') {
       stepEl.textContent = '03 / 03';
       view('norm'); buildKeys();
       $('nm-hint').textContent = TEXT.hintNorm;
@@ -921,6 +979,7 @@
         spawnBoss(now2 - 900, f2);
         $('nm-time').style.transform = 'scaleX(' + (name === 'boss' ? 0.32 : 0.2) + ')';
         if (name === 'boss-hit') { $('nm-alert').hidden = true; for (var q = 0; q < 7; q++) hitBoss(nm.boss.x, nm.boss.y); }
+        if (name === 'boss-down') { $('nm-alert').hidden = true; for (var q2 = 0; q2 < NORM.bossTaps; q2++) hitBoss(nm.boss.x, nm.boss.y); }
       } else {
         var g2 = makeGhost(name === 'cheer20' ? 'blue' : 'red', now2 - 900, 1e9, f2);
         g2.x = f2.w * 0.5; g2.y = f2.h * 0.4; nm.ghosts.push(g2);

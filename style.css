@@ -1169,6 +1169,7 @@ body[data-scan] .ring::before { animation: spin 18s linear infinite; }
 .nm-field { position: relative; flex: 1; min-height: 0; border: 1px solid var(--line); background: rgba(8, 11, 12, 0.55); overflow: hidden; }
 .nm-field canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 .nm-field .rt-hint { position: absolute; left: 0; right: 0; bottom: 8px; font-size: 12px; pointer-events: none; }
+.ritual[data-boss] .nm-field .rt-hint { visibility: hidden; }
 .nm-pop {
   position: absolute;
   left: 0;

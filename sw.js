@@ -42,6 +42,7 @@ var ASSETS = [
   'assets/sync/memo-mujin.v2.webp',
   'assets/sync/memo-doun.v2.webp',
   'assets/sync/memo-siyeon.v2.webp',
+  'assets/ritual/daegwi.webp',
   'assets/archive/memo-02.v2.webp',
   'assets/archive/memo-04.v2.webp',
   'assets/relic/relic-01.webp',
