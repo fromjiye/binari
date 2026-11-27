@@ -498,7 +498,7 @@
     return Promise.all([
       fontsReady(sample),
       loadImage('assets/sync/' + key + '.webp'),
-      loadImage('assets/sync/memo-' + key + '.webp'),
+      loadImage('assets/sync/memo-' + key + '.v2.webp'),
       loadImage('assets/binari-wordmark.svg')
     ]).then(function (r) {
       if (my !== seq) return;

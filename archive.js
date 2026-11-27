@@ -223,7 +223,7 @@
     if (b.memo) {
       n = el('figure', 'ar-b ar-memo');
       var img = el('img');
-      img.src = 'assets/archive/memo-' + b.memo + '.webp';
+      img.src = 'assets/archive/memo-' + b.memo + '.v2.webp';
       img.alt = TEXT.memoBy + b.text;
       img.width = 680; img.height = 330;
       img.decoding = 'async';
