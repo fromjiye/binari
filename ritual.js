@@ -841,6 +841,7 @@
   var BYEORI = Number(CFG.byeoriScore) || 0;
 
   function renderRank(list, mine) {
+    if (api._fakeRank) { list = api._fakeRank.list; mine = api._fakeRank.mine; } // 캡처용 가짜 목록 (서버에 올리지 않음)
     var ol = $('rs-rank');
     ol.textContent = '';
     var top = el('li', 'rs-byeori'); // 순위 번호 없이 맨 위에 따로
@@ -848,7 +849,8 @@
     top.appendChild(el('b', null, String(BYEORI)));
     ol.appendChild(top);
     list.slice(0, 10).forEach(function (e, i) {
-      var li = el('li', mine && e.id === mine ? 'is-me' : '');
+      // 1~3위는 금 · 은 · 동 강조 (rk-1 ~ rk-3), 내 기록은 is-me
+      var li = el('li', ((i < 3 ? 'rk-' + (i + 1) : '') + (mine && e.id === mine ? ' is-me' : '')).trim());
       li.appendChild(el('span', 'rs-rank-no', ('0' + (i + 1)).slice(-2)));
       li.appendChild(el('span', 'rs-rank-name', e.name));
       li.appendChild(el('b', null, String(e.score)));
@@ -925,6 +927,7 @@
   // ══════════════ 한 판 ══════════════
   function start() {
     token += 1;
+    api._fakeRank = null;
     var t = token;
     stopLoop();
     hum().stop();
@@ -1042,6 +1045,20 @@
         nm.ghosts.forEach(function (g) { drawGhost(ff.c, g, n3); });
         if (nm.boss) drawBoss(ff.c, nm.boss, n3);
       });
+      return;
+    }
+    // 랭킹 강조 확인용: 가짜 목록 8줄. rank = 내 기록 없음 / rank-me2 = 내 기록이 2위 / rank-me4 = 내 기록이 4위
+    if (name === 'rank' || name === 'rank-me2' || name === 'rank-me4') {
+      var names = ['NOVA', '도토리', 'MOON', '초록', '바람', '별사탕', 'K', '새벽'];
+      var scores = [27410, 24980, 21350, 18720, 15260, 11840, 9130, 6470];
+      var fake = names.map(function (n, i) { return { id: 'FAKE' + i, name: n, score: scores[i] }; });
+      var me = name === 'rank-me2' ? 1 : (name === 'rank-me4' ? 3 : -1);
+      if (me >= 0) fake[me].name = '나';
+      api._fakeRank = { list: fake, mine: me >= 0 ? fake[me].id : null };
+      run = { perfect: 2, startSync: 25, score: me >= 0 ? scores[me] : 13380, maxCombo: 21, roots: 2 };
+      result(t);
+      if (me >= 0) { $('rs-form').hidden = true; $('rs-done').hidden = false; }
+      renderRank();
       return;
     }
     if (name === 'result' || name === 'secret') {

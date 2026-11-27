@@ -1310,6 +1310,15 @@ body[data-scan] .ring::before { animation: spin 18s linear infinite; }
 .rs-rank b { font-family: var(--mono); font-weight: 700; }
 .rs-rank li.is-me { color: var(--accent); }
 .rs-rank li.is-me .rs-rank-no { color: var(--accent); }
+/* 1~3위: 왼쪽 색띠 + 순위 번호 크게 · 굵게 + 점수도 같은 색 + 줄 바탕에 같은 색 아주 옅게. 아이콘은 쓰지 않는다
+   금은 설계자 노랑(#FCE80A)과 헷갈리지 않게 톤을 낮춘 값. 4위부터는 그대로 */
+.rs-rank li.rk-1 { --rk: #e9c46a; --rk-bg: rgba(233, 196, 106, 0.06); }
+.rs-rank li.rk-2 { --rk: #c9d1d6; --rk-bg: rgba(201, 209, 214, 0.06); }
+.rs-rank li.rk-3 { --rk: #c98a5b; --rk-bg: rgba(201, 138, 91, 0.06); }
+.rs-rank li.rk-1, .rs-rank li.rk-2, .rs-rank li.rk-3 { padding: 8px 10px; border-left: 3px solid var(--rk); background: var(--rk-bg); }
+.rs-rank li.rk-1 .rs-rank-no, .rs-rank li.rk-2 .rs-rank-no, .rs-rank li.rk-3 .rs-rank-no { font-size: 18px; font-weight: 700; line-height: 1; color: var(--rk); }
+.rs-rank li.rk-1 b, .rs-rank li.rk-2 b, .rs-rank li.rk-3 b { color: var(--rk); }
+/* 1~3위 안의 내 기록: 순위 색(번호 · 점수)은 그대로, 이름만 시안 (위의 is-me 규칙이 이름에 적용됨) */
 /* 순위 번호 없이 맨 위에 따로 놓인 벼리 기록 */
 .rs-rank li.rs-byeori { grid-template-columns: minmax(0, 1fr) auto; margin: 8px 0 2px; padding: 8px 10px; border: 1px solid var(--byeori); color: var(--byeori); }
 .rs-rank li.rs-byeori .rs-rank-name { font-family: var(--mono); font-weight: 700; letter-spacing: 0.08em; }
@@ -1831,7 +1840,14 @@ img.is-flat {
 .sy-card-img { display: block; width: 100%; height: 100%; -webkit-touch-callout: default; user-select: none; -webkit-user-select: none; }
 .sy-result[data-state="drawing"] .sy-card-img { visibility: hidden; }
 .sy-ghost { display: none; }
-.sy-result .cert-save { width: 100%; max-width: 420px; margin: 14px auto 0; }
+.sy-result .cert-save { width: 100%; max-width: 420px; margin: 8px auto 0; }
+/* 첫 화면에서 저장 버튼이 아래 고정 바 위로 다 보이게: 위 여백 · 카드와 버튼 사이를 줄이고,
+   화면이 낮으면 카드를 비율(3:4) 그대로 조금 줄인다. 226px = 머리줄 + 여백 + 저장 버튼 + 고정 바 */
+.sy-result { padding-top: 8px; }
+.sy-result .sy-card { width: min(100%, 420px, calc((100vh - 226px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) * 0.75)); }
+@supports (height: 100dvh) {
+  .sy-result .sy-card { width: min(100%, 420px, calc((100dvh - 226px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) * 0.75)); }
+}
 .sy-result .cert-hint { max-width: 420px; margin-left: auto; margin-right: auto; }
 .sy-file { margin-top: 24px; }
 .sy-file p { margin-top: 12px; font-size: 14.5px; line-height: 1.8; color: var(--text); word-break: keep-all; }
@@ -2077,7 +2093,7 @@ img.is-flat {
   margin: 0;
   padding: 10px 20px calc(18px + env(safe-area-inset-bottom));
   border-top: 1px solid var(--line);
-  background: rgba(5, 7, 7, 0.95);
+  background: #050707; /* 뒤의 글이 비치지 않게 불투명 */
 }
 .foot-bar[hidden] { display: none; }
 /* 바 높이: 위 10 + 버튼 50 + 아래 18 (+ 홈 인디케이터) */
