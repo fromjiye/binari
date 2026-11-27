@@ -34,7 +34,8 @@
     findIt: '전시 부스에서 유실물을 찾아보세요!',
     class: '분류',
     status: '상태',
-    close: '닫기'
+    close: '닫기',
+    memLocked: '회수하면 기억이 열립니다.'
   };
 
   // 오방색 분류: 작은 색 사각형 + 글자
@@ -47,13 +48,27 @@
 
   // via: tag = 실물 키링 태그 / 그 밖은 회수 경로가 되는 앱
   // flat: 바탕이 있는 그림(설정집 그림) → 가장자리를 페이드해서 사이트 바탕에 섞음. 투명 누끼(01 · 05 · 06)는 그대로
+  // story: 잔류 기억(본문) / voice: 목소리 줄 / noise: 수신 잡음 (01 만) — 상세 화면에만 나옴. 문장은 지예 확정본 그대로
   var ITEMS = [
-    { no: '01', key: 'r01',   name: '붉은 댕기',                      color: 'blue',   emo: '슬픔·그리움', note: '',                    via: 'tag' },
-    { no: '02', key: 'voice', name: '보내지 못한 음성 메시지',        color: 'blue',   emo: '슬픔·그리움', note: '재생 불가',           via: 'ritual',  flat: true },
-    { no: '03', key: 'r03',   name: '찢어진 업로드 동의서',           color: 'red',    emo: '분노·억울함', note: '서명란 손상',         via: 'sync',    flat: true },
-    { no: '04', key: 'r04',   name: '반쯤 깨진 가족사진',             color: 'yellow', emo: '욕망·집착',   note: '열화 진행',           via: 'archive', flat: true },
-    { no: '05', key: 'r05',   name: '주인 잃은 노리개',               color: 'yellow', emo: '욕망·집착',   note: '원 소유자 기록 없음', via: 'tag' },
-    { no: '06', key: 'r06',   name: '마지막 로그인이 찍힌 개인 단말', sub: '2199.03.██', color: 'white', emo: '공허·체념', note: '접속 기록 종료', via: 'tag' }
+    { no: '01', key: 'r01',   name: '붉은 댕기',                      color: 'blue',   emo: '슬픔·그리움', note: '',                    via: 'tag',
+      story: '업로드 전날 밤, 누군가 땋은 머리 끝에 이 댕기를 꽉 묶어 주었다. 대기열에서 끝까지 맞잡고 있던 손은 결국 놓쳤고, 댕기만 이쪽으로 넘어왔다. 겉은 분명 붉은데, 분류는 청(靑)이다. 데이터 무덤에 수없이 묻히고 깨졌는데도 이 붉은색은 한 번도 바래지 않았고, 끝자락의 올만 조금씩 풀려 가고 있다.',
+      voice: '“풀리지 않게 꽉 묶었어. 이따 저쪽에서 만나.”',
+      noise: ['[수신 잡음]', '…들…리나…요?'] },
+    { no: '02', key: 'voice', name: '보내지 못한 음성 메시지',        color: 'blue',   emo: '슬픔·그리움', note: '재생 불가',           via: 'ritual',  flat: true,
+      story: '업로드 전날 새벽에 녹음했지만, 끝내 보내지 못한 음성 메시지. 3분 12초 중 대부분은 숨소리와, 할 말을 고르다 멈춘 침묵이다. 마지막 2초는 파형으로만 남아 있다. 네 음절. 마고 OS는 이 네 음절을 ‘노이즈’로 분류했다.',
+      voice: '“…있잖아. 나, 사실은—”' },
+    { no: '03', key: 'r03',   name: '찢어진 업로드 동의서',           color: 'red',    emo: '분노·억울함', note: '서명란 손상',         via: 'sync',    flat: true,
+      story: '포스트-플레시 이주 동의서. 맨 아래 작은 글씨에는 ‘이주 과정에서 불필요한 감정 데이터는 최적화됩니다’라는 조항이 있다. 그 줄을 읽은 누군가가 동의서를 반으로 찢었다. 서명란은 끝내 비어 있는데도, 기록은 이미 ‘동의 완료’로 처리된 뒤였다. 적(赤)으로 분류된 이 분노는 너무 뜨거워서, 회수된 지금도 종이 위로 픽셀 불티가 튄다.',
+      voice: '“이런 건… 먼저 말해 줬어야지.”' },
+    { no: '04', key: 'r04',   name: '반쯤 깨진 가족사진',             color: 'yellow', emo: '욕망·집착',   note: '열화 진행',           via: 'archive', flat: true,
+      story: '제3 레이어에서 회수된 가족사진. 노을 진 들판에서 아빠는 아들의 손을 잡고 있고, 아들은 고개를 들어 엄마를 바라보고 있다. 백업 비용을 내지 못하는 동안, 사진은 엄마 쪽부터 픽셀로 흩어지기 시작했다. 아들은 엄마의 얼굴을 붙잡으려고 사진을 저장하고 또 저장했지만, 덮어쓸 때마다 깨진 자리는 조금씩 더 넓어졌다.',
+      voice: '“괜찮아. 내가 기억하면 돼. …기억하면 되는데.”' },
+    { no: '05', key: 'r05',   name: '주인 잃은 노리개',               color: 'yellow', emo: '욕망·집착',   note: '원 소유자 기록 없음', via: 'tag',
+      story: '할머니에게서 어머니로, 어머니에게서 딸로. 늘 저고리 고름 한가운데에 매달려 있던 노리개. 이주할 때 물건은 가져갈 수 없었지만, 딸은 마지막까지 이것을 손에 쥐고 놓지 않았다. 그래서 마고 OS는 노리개와 함께 ‘놓지 않으려는 마음’까지 통째로 잘라 냈다. 주인은 지금도 네오 마고에 살고 있지만, 가끔 빈손을 쥐었다 펴는 버릇만 남았다.',
+      voice: '“이것만은 안 돼요. 우리 집 거예요.”' },
+    { no: '06', key: 'r06',   name: '마지막 로그인이 찍힌 개인 단말', color: 'white',  emo: '공허·체념',   note: '접속 기록 종료',      via: 'tag',
+      story: '업로드 전까지 쓰던 개인 단말. 금 간 화면에는 마지막 로그인 시각 2199.03.██만 떠 있다. 그 아래에는 읽지 않은 알림이 999개 넘게 쌓여 있는데, 모두 먼저 넘어간 사람들이 보낸 같은 말, ‘어디야?’였다. 주인은 끝내 하나도 열어 보지 않았고, 그날 이후 접속 기록은 하얗게 비어 있다.',
+      voice: '“다들 벌써 넘어갔네. …나만 남았나.”' }
   ];
   // 회수 경로가 되는 앱. open 이 false 면 아직 없는 앱 → 홈 메뉴처럼 STANDBY
   var ROUTES = {
@@ -160,6 +175,28 @@
     var hint = $('inv-d-hint');
     hint.textContent = '';
     if (!got) hint.appendChild(hintNode(item, 'inv-hint'));
+    // 잔류 기억: 회수 전에는 제목 줄과 안내 한 줄만
+    var mem = $('inv-d-mem');
+    mem.style.setProperty('--mem', COLORS[item.color].c);
+    mem.classList.toggle('is-shut', !got);
+    $('inv-d-mem-body').textContent = got ? item.story : TEXT.memLocked;
+    $('inv-d-mem-voice').textContent = got ? item.voice : '';
+    var noise = $('inv-d-mem-noise');
+    noise.textContent = '';
+    if (got && item.noise) {
+      noise.appendChild(el('b', null, item.noise[0]));
+      noise.appendChild(document.createTextNode(' '));
+      var word = el('span', 'inv-noise');
+      word.setAttribute('aria-label', item.noise[1]);
+      for (var ni = 0; ni < item.noise[1].length; ni++) { // 글자마다 따로 깜빡임
+        var ch = el('i', null, item.noise[1].charAt(ni));
+        ch.setAttribute('aria-hidden', 'true');
+        ch.style.animationDelay = (-(ni * 0.37 % 2.6)).toFixed(2) + 's';
+        ch.style.animationDuration = (2.1 + (ni * 7 % 5) * 0.23).toFixed(2) + 's';
+        word.appendChild(ch);
+      }
+      noise.appendChild(word);
+    }
     $('inv-d-record').textContent = RECORD;
     lastFocus = document.activeElement;
     detail.hidden = false;
@@ -325,5 +362,7 @@
     if (name === 'already') { forced = { r01: 1 }; render(); toast(TEXT.already); highlight('01'); return; }
     if (name === 'detail') { forced = { r01: 1, voice: 1 }; render(); openDetail(byNo('01')); return; }
     if (name === 'detail-locked') { forced = { r01: 1 }; render(); openDetail(byNo('03')); return; }
+    var m = /^d(0[1-6])([gl])$/.exec(name); // d06g = 06 회수한 상세, d06l = 06 회수 전 상세
+    if (m) { forced = m[2] === 'g' ? all : {}; render(); openDetail(byNo(m[1])); return; }
   };
 })();

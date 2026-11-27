@@ -1479,7 +1479,28 @@ body[data-scan] .ring::before { animation: spin 18s linear infinite; }
 .inv-d-hint { margin-top: 12px; }
 .inv-d-hint:empty { display: none; }
 .inv-d-hint .inv-hint { font-size: 13.5px; }
-.inv-d-record { margin-top: 16px; padding: 12px 14px 13px; border-left: 3px solid var(--accent); background: var(--panel); font-size: 14px; line-height: 1.7; word-break: keep-all; }
+/* 잔류 기억: 제목 줄과 왼쪽 세로줄은 그 유실물의 오방색 */
+.inv-d-mem { --mem: var(--accent); margin-top: 18px; padding: 1px 0 2px 14px; border-left: 2px solid var(--mem); }
+.inv-d-mem-head { margin: 0; font-family: var(--mono); font-size: 11.5px; font-weight: 600; letter-spacing: 0.12em; color: var(--mem); }
+.inv-d-mem-body { margin-top: 10px; font-size: 15px; line-height: 1.85; color: #c3ccd0; word-break: keep-all; }
+.inv-d-mem-voice { margin-top: 13px; font-size: 15px; line-height: 1.75; font-style: normal; color: #eef3f5; word-break: keep-all; }
+.inv-d-mem-voice:empty, .inv-d-mem-noise:empty { display: none; }
+.inv-d-mem.is-shut .inv-d-mem-body { color: var(--dim); }
+.inv-d-mem-noise { margin-top: 13px; font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.04em; color: var(--dim); }
+.inv-d-mem-noise b { font-weight: 500; }
+.inv-noise i { display: inline-block; animation: inv-noise 2.4s steps(1) infinite; }
+@keyframes inv-noise {
+  0%, 100% { opacity: 1; transform: none; }
+  17% { opacity: 0.35; }
+  21% { opacity: 1; }
+  58% { opacity: 0.55; transform: translateY(1px); }
+  63% { opacity: 1; transform: none; }
+  84% { opacity: 0.2; }
+  87% { opacity: 0.9; }
+}
+/* [마고 OS 기록] 공통 문구: 맨 아래, 작게, 회색 */
+.inv-d-record { margin-top: 22px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 12px; line-height: 1.7; color: var(--dim); word-break: keep-all; }
+@media (prefers-reduced-motion: reduce) { .inv-noise i { animation: none; } }
 
 /* ── 회수 기록 해제 ── */
 .inv-unlock {
